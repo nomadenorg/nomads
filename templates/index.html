@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>nomaden.ofosos.org</title>
+  </head>
+  <body>
+
+    <img src="assets/camel.jpg">
+    
+    <h1>Die aktuellen Nomaden-Termine</h1>
+
+    <strong> Hinweis: Die Links zu den Kartendiensten sind automatisch erzeugt und nicht notwendigerweise korrekt. Bitte Filter zwischen den Ohren einschalten!</strong>
+    
+    <h2>Die feststehenden Termine</h2>
+
+    {% for app in fixed_apps %}
+
+    <p>
+    Termin am <b>{{ fmt_date(app.setdate) }}</b>
+    {{ app.name }}
+    <a target="_blank" href="http://maps.google.com/maps?f=q&hl=en&q={{ app.street }},+Hamburg,+Germany">Google Maps</a>
+    {{ app.street }}, {{ app.city }} (<a taget="_blank" href="http://www.geofox.de/jsf/home.seam?INPUTSTARTTYP=H&INPUTSTARTTEXT1=Informatikum&INPUTSTARTTEXT2=Hamburg&INPUTUHRZEIT=19:00&INPUTABODERAN=2&INPUTZIELTYP=A&INPUTZIELTEXT2={{ app.city }}&INPUTDATUM=23.08.2016&INPUTZIELTEXT1={{ app.publictrans }}">{{ app.publictrans }}</a>)
+    </p>
+
+    {% for comment in app.comments %}
+
+    <p>&lt;{{ comment.uname }}&gt; {{comment.text}}</p>
+    
+    {% endfor %}
+
+    <p>
+      <form action="/comment" method="post">
+	<input type="hidden" name="id" value="{{ app.key.urlsafe() }}">
+	Von: <input type="text" name="author">
+	Text: <input type="text" name="text">
+	Beine: <input type="text" name="magic">
+	<input type="submit" value="Kommentieren">
+      </form>
+    </p>
+    
+    {% endfor %}
+
+    <h2>Die Warteliste</h2>
+    
+    {% for app in wait_apps %}
+    
+    <p>
+    {{ app.name }}
+    {{ app.street }}, {{ app.city }} ({{ app.publictrans }})
+    <a href="/moveForward?id={{ app.sortorder }}">Früher</a>
+    <form action="/comment" method="post">
+      <input type="hidden" name="id" value="{{ app.key.urlsafe() }}">
+      <input type="text" name="author">
+      <input type="text" name="text">
+      <input type="submit" value="Kommentieren">
+    </form>
+    </p>
+    
+    {% for comment in app.comments %}
+
+    <p>&lt;{{ comment.uname }}&gt; {{comment.text}}</p>
+    
+    {% endfor %}
+
+    {% endfor %}
+
+
+    <hr>
+
+    <a href="/archive">Alte Termine</a>
+    <a href="/enterpub.html">Neue Kneipe</a>
+
+    <em>Current user: {{ username }}</em>
+    
+  </body>
+</html>
+{% endautoescape %}

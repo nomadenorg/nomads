@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <head>
+    <meta charset="utf-8" /> 
+    <title>nomaden.ofosos.org Archiv</title>
+  </head>
+  <body>
+    <h1>Nomaden Archiv</h1>
+
+    {% for app in archive_apps %}
+
+    <p>{{ fmt_date(app.setdate) }}, {{ app.name }}, {{ app.street }}</p>
+    
+    {% endfor %}
+  </body>
+</html>
+{% endautoescape %}

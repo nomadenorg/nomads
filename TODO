@@ -1,0 +1,13 @@
+
+ - Datumsformat - fix
+ - Kommentarfelder - fix
+ - Kommentar / Beine
+ - Initial Schedule Termine
+ - Loeschen Termine
+ - Festlegen Geofox Start fuer angemeldete User
+ - url escape fuer Geofox und Google Maps
+ - mailversand vom cronjob aus
+ - SSL?
+ - permissions aufdroeseln
+ - moderator funktion
+ 

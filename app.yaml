@@ -1,0 +1,47 @@
+runtime: python27
+api_version: 1
+threadsafe: true
+
+application: nomaden
+version: alpha-002
+
+handlers:
+- url: /favicon\.ico
+  static_files: favicon.ico
+  upload: favicon.ico
+
+- url: /assets
+  static_dir: assets
+
+- url: /enterpub.html
+  static_files: enterpub.html
+  upload: enterpub.html
+
+- url: /
+  script: nomaden.app
+
+- url: /enterPub
+  script: nomaden.app
+  login: required
+
+- url: /schedulePubs
+  script: nomaden.app
+  login: admin
+
+- url: /moveForward
+  script: nomaden.app
+  login: required
+
+- url: /comment
+  script: nomaden.app
+  login: required
+
+- url: /archive
+  script: nomaden.app
+
+libraries:
+- name: webapp2
+  version: latest
+- name: jinja2
+  version: latest
+  
