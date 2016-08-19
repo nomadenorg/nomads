@@ -9,20 +9,8 @@ import webapp2
 
 import datetime
 
-JINJA_ENVIRONMENT = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(os.path.dirname(__file__) + '/templates'),
-    extensions=['jinja2.ext.autoescape'],
-    autoescape=True)
+# model layer
 
-DEFAULT_BUCKET_NAME = 'current_appointments'
-ARCHIVE_BUCKET_NAME = 'archive_appointments'
-
-# user format date
-def fmt_date(dat):
-    return dat.strftime("%d.%m.%Y")
-
-JINJA_ENVIRONMENT.globals.update(fmt_date=fmt_date)
-    
 def appointments_key(bucket_name=DEFAULT_BUCKET_NAME):
     return ndb.Key('Appointment', bucket_name)
 
@@ -44,6 +32,38 @@ class Appointment(ndb.Model):
     sortorder = ndb.IntegerProperty()
     comments = ndb.LocalStructuredProperty(Comment, repeated=True)
 
+
+# utility & templates
+
+JINJA_ENVIRONMENT = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(os.path.dirname(__file__) + '/templates'),
+    extensions=['jinja2.ext.autoescape'],
+    autoescape=True)
+
+DEFAULT_BUCKET_NAME = 'current_appointments'
+ARCHIVE_BUCKET_NAME = 'archive_appointments'
+
+# user format date
+def fmt_date(dat):
+    return dat.strftime("%d.%m.%Y")
+
+JINJA_ENVIRONMENT.globals.update(fmt_date=fmt_date)
+
+def next_tuesday():
+    target = datetime.date.today()
+    while target.isoweekday() <> 2:
+        target = target + datetime.timedelta(1)
+    return target
+        
+def previous_tuesday():
+    today = datetime.date.today()
+    target = today
+    while today <= target and target.isoweekday() <> 2:
+        target = target - datetime.timedelta(1)
+    return target
+
+# http dispatching
+    
 class MainPage(webapp2.RequestHandler):
     def get(self):
         fixed_query = Appointment.query(ancestor=appointments_key()).filter(Appointment.setdate != None).order(Appointment.setdate)
@@ -134,19 +154,6 @@ class MoveForwardPub(webapp2.RequestHandler):
 
         self.redirect('/')
         
-def next_tuesday():
-    target = datetime.date.today()
-    while target.isoweekday() <> 2:
-        target = target + datetime.timedelta(1)
-    return target
-        
-def previous_tuesday():
-    today = datetime.date.today()
-    target = today
-    while today <= target and target.isoweekday() <> 2:
-        target = target - datetime.timedelta(1)
-    return target
-
 # woechentlicher cronjob
 class SchedulePubs(webapp2.RequestHandler):
     def get(self):
