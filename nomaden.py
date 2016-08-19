@@ -11,9 +11,11 @@ import datetime
 
 # model layer
 
+# all entities under this root form the current list
 def appointments_key(bucket_name=DEFAULT_BUCKET_NAME):
     return ndb.Key('Appointment', bucket_name)
 
+# all entitties under this root form the archive
 def apparchive_key(bucket_name=ARCHIVE_BUCKET_NAME):
     return ndb.Key('Appointment', bucket_name)
 
@@ -32,6 +34,14 @@ class Appointment(ndb.Model):
     sortorder = ndb.IntegerProperty()
     comments = ndb.LocalStructuredProperty(Comment, repeated=True)
 
+class MailContact(ndb.Model):
+    name = ndb.StringProperty()
+    email = ndb.StringProperty()
+
+class NomadicUser(ndb.Model):
+    name = ndb.StringProperty()
+    uid = ndb.StringProperty()
+    groups = ndb.LocalStructuredProperty(ndb.StringProperty, repeated=True)
 
 # utility & templates
 
