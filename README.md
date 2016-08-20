@@ -19,3 +19,10 @@ We try making this a responsive webapp, performing equally well on
 desktop and on mobile.
 
 The original app was hosted at http://nomaden.org.
+
+When you're developing, you can trigger the cronjob via
+http://localhost:8080/schedulePubs This should just return an empty
+page. This runs the cronjob that marks pubs as scheduled and archives
+older ones. Log in to the test appengine via the login button on the
+lower right corner and mark that you're an admin user. Otherwise you
+will not be able to trigger the cronjob.
