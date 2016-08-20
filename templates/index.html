@@ -71,6 +71,13 @@
 	    {{ app.street }}, {{ app.city }}<br>
 	    <a target="_blank" href="http://maps.google.com/maps?f=q&hl=en&q={{ app.street }},+Hamburg,+Germany">Google Maps</a> (<a taget="_blank" href="http://www.geofox.de/jsf/home.seam?INPUTSTARTTYP=H&INPUTSTARTTEXT1=Informatikum&INPUTSTARTTEXT2=Hamburg&INPUTUHRZEIT=19:00&INPUTABODERAN=2&INPUTZIELTYP=A&INPUTZIELTEXT2={{ app.city }}&INPUTDATUM=23.08.2016&INPUTZIELTEXT1={{ app.publictrans }}">{{ app.publictrans }}</a>)
 	  </p>
+	  
+	  {% if moderator is defined %}
+	  <p>
+	    <a href="/delete?id={{ app.key.urlsafe() }}">Löschen</a>
+	  </p>
+	  {% endif %}
+	    
 
 	  <div class="comments">
 	    {% for comment in app.comments %}
@@ -131,6 +138,9 @@
 	    <b>{{ app.name }}</b><br>
 	    {{ app.street }}, {{ app.city }}<br> ({{ app.publictrans }})<br>
 	    <a href="/moveForward?id={{ app.sortorder }}">#Früher</a>
+	    {% if moderator is defined %}
+	    <a href="/delete?id={{ app.key.urlsafe() }}">Löschen</a>
+	    {% endif %}
 	  </p>
 
 

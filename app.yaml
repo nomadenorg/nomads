@@ -32,6 +32,10 @@ handlers:
   script: nomaden.app
   login: required
 
+- url: /delete
+  script: nomaden.app
+  login: required
+
 - url: /comment
   script: nomaden.app
   login: required

@@ -13,6 +13,7 @@ import datetime
 
 DEFAULT_BUCKET_NAME = 'current_appointments'
 ARCHIVE_BUCKET_NAME = 'archive_appointments'
+BIT_BUCKET_NAME = 'delete_appointments'
 
 # all entities under this root form the current list
 def appointments_key(bucket_name=DEFAULT_BUCKET_NAME):
@@ -20,6 +21,9 @@ def appointments_key(bucket_name=DEFAULT_BUCKET_NAME):
 
 # all entitties under this root form the archive
 def apparchive_key(bucket_name=ARCHIVE_BUCKET_NAME):
+    return ndb.Key('Appointment', bucket_name)
+
+def bitbucket_key(bucket_name=BIT_BUCKET_NAME):
     return ndb.Key('Appointment', bucket_name)
 
 class Comment(ndb.Model):
@@ -37,16 +41,23 @@ class Appointment(ndb.Model):
     setdate = ndb.DateProperty()
     sortorder = ndb.IntegerProperty()
     comments = ndb.LocalStructuredProperty(Comment, repeated=True)
+    removed = ndb.StringProperty()
 
 class MailContact(ndb.Model):
     name = ndb.StringProperty()
     email = ndb.StringProperty()
 
-class NomadicUser(ndb.Model):
+class Nomad(ndb.Model):
     name = ndb.StringProperty()
     mail = ndb.StringProperty()
     moderator = ndb.BooleanProperty()
 
+def clone_entity(e, **extra_args):
+    klass = e.__class__
+    props = dict((v._code_name, v.__get__(e, klass)) for v in klass._properties.itervalues() if type(v) is not ndb.ComputedProperty)
+    props.update(extra_args)
+    return klass(**props)
+    
 # utility & templates
 
 JINJA_ENVIRONMENT = jinja2.Environment(
@@ -60,7 +71,7 @@ def get_nomad():
 
     if guser:
         mail = guser.email()
-        q = NomadicUser.query(mail=mail)
+        q = Nomad.query(Nomad.mail == mail)
         nuserlis = q.fetch(1)
         if len(nuserlis) > 0:
             nuser = nuserlis[0]
@@ -127,7 +138,7 @@ class MainPage(webapp2.RequestHandler):
             'loginout_text': loginout_text, }
 
         nomad = get_nomad()
-        if nomad.moderator:
+        if nomad and nomad.moderator:
             template_values['moderator'] = "yes"
         
         template = JINJA_ENVIRONMENT.get_template('index.html')
@@ -212,6 +223,22 @@ class MoveForwardPub(webapp2.RequestHandler):
             app_b.put()
 
         self.redirect('/')
+
+class DeletePub(webapp2.RequestHandler):
+    def get(self):
+        nomad = get_nomad()
+
+        if nomad.moderator:
+            appid = self.request.get('id')
+            app = ndb.Key(urlsafe=appid).get()
+
+            if app:
+                newapp = clone_entity(app, parent=bitbucket_key())
+                newapp.removed = generate_source(self.request)
+                newapp.put()
+                app.key.delete()
+
+        self.redirect('/')
         
 # woechentlicher cronjob
 class SchedulePubs(webapp2.RequestHandler):
@@ -225,8 +252,10 @@ class SchedulePubs(webapp2.RequestHandler):
         archive_list = archive_query.fetch()
 
         for app in archive_list:
-            app.parent = apparchive_key()
-            app.save()
+            newapp = clone_entity(app, parent=apparchive_key())
+            newapp.put()
+
+            app.key.delete()
 
         # die aktuellen, also schon geplanten
         current_query = Appointment.query(ancestor=appointments_key()).filter(Appointment.setdate > datetime.date.today())
@@ -258,6 +287,7 @@ app = webapp2.WSGIApplication([
     ('/enterPub', EnterPub),
     ('/schedulePubs', SchedulePubs),
     ('/moveForward', MoveForwardPub),
+    ('/delete', DeletePub),
     ('/comment', CommentPub),
     ('/archive', Archive),
 ], debug=True)
