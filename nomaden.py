@@ -11,6 +11,9 @@ import datetime
 
 # model layer
 
+DEFAULT_BUCKET_NAME = 'current_appointments'
+ARCHIVE_BUCKET_NAME = 'archive_appointments'
+
 # all entities under this root form the current list
 def appointments_key(bucket_name=DEFAULT_BUCKET_NAME):
     return ndb.Key('Appointment', bucket_name)
@@ -49,9 +52,6 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__) + '/templates'),
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
-
-DEFAULT_BUCKET_NAME = 'current_appointments'
-ARCHIVE_BUCKET_NAME = 'archive_appointments'
 
 # user format date
 def fmt_date(dat):
