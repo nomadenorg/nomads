@@ -20,7 +20,8 @@ Static assets are to be found in assets, whenever they're not in the root path.
 We try making this a responsive webapp, performing equally well on
 desktop and on mobile.
 
-The original app was hosted at http://nomaden.org.
+The original app is hosted at http://nomaden.org.
+The current demo app is hosted at https://nomaden.ofosos.org
 
 When you're developing, you can trigger the cronjob via
 http://localhost:8080/schedulePubs This should just return an empty
