@@ -16,12 +16,15 @@ handlers:
 - url: /enterpub.html
   static_files: enterpub.html
   upload: enterpub.html
+  secure: always
 
 - url: /
   script: nomaden.app
+  secure: always
 
 - url: /enterPub
   script: nomaden.app
+  secure: always
 
 - url: /schedulePubs
   script: nomaden.app
@@ -29,28 +32,35 @@ handlers:
 
 - url: /moveForward
   script: nomaden.app
+  secure: always
 
 - url: /delete
   script: nomaden.app
   login: required
+  secure: always
 
 - url: /comment
   script: nomaden.app
+  secure: always
 
 - url: /archive
   script: nomaden.app
+  secure: always
 
 - url: /moderator
   script: nomaden.app
   login: required
+  secure: always
 
 - url: /moderatorAdd
   script: nomaden.app
   login: admin
+  secure: always
 
 - url: /moderatorDel
   script: nomaden.app
   login: admin
+  secure: always
 
 libraries:
 - name: webapp2
