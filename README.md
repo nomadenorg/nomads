@@ -13,6 +13,8 @@ You'll find the central application logic in nomaden.py, this defines all applic
 
 Templates are to be found in templates/*, these are Jinja2 templates.
 
+Frontend boilerplate is provided by Skeleton (http://getskeleton.com/).
+
 Static assets are to be found in assets, whenever they're not in the root path.
 
 We try making this a responsive webapp, performing equally well on
