@@ -83,8 +83,12 @@ class MainPage(webapp2.RequestHandler):
         wait_query = Appointment.query(ancestor=appointments_key()).filter(Appointment.setdate == None).order(Appointment.sortorder)
 
         wait_list = wait_query.fetch()
+
+        current_username = "not logged in"
+        if users.get_current_user():
+            current_username = users.get_current_user().nickname()
         
-        template_values = { 'username': users.get_current_user().nickname(), 'fixed_apps': fixed_list, 'wait_apps': wait_list }
+        template_values = { 'username': current_username, 'fixed_apps': fixed_list, 'wait_apps': wait_list }
 
         template = JINJA_ENVIRONMENT.get_template('index.html')
         self.response.write(template.render(template_values))
