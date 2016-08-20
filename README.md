@@ -30,6 +30,8 @@ older ones. Log in to the test appengine via the login button on the
 lower right corner and mark that you're an admin user. Otherwise you
 will not be able to trigger the cronjob.
 
+To finally deploy I recommend doing a `git archive master | tar -x -C ~/deploy-path` and then uploading that stuff into AppEngine or pointing the development server to that path.
+
 See the file LICENSE for license information to the app. The images
 (favicon.ico, assets/camel.jpg and assets/camel-250.jpg) included are
 owned by the nomaden.org group of people.
