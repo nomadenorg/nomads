@@ -4,15 +4,34 @@
   <head>
     <meta charset="utf-8" /> 
     <title>nomaden.ofosos.org Archiv</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="assets/normalize.css">
+    <link rel="stylesheet" href="assets/skeleton.css">
+    <link rel="stylesheet" href="assets/nomaden.css">
+
   </head>
   <body>
-    <h1>Nomaden Archiv</h1>
 
-    {% for app in archive_apps %}
+    <div class="container">
 
-    <p>{{ fmt_date(app.setdate) }}, {{ app.name }}, {{ app.street }}</p>
+      <div class="row">
+	
+	<h1>Nomaden Archiv</h1>
+
+	{% for app in archive_apps %}
+
+	<p>{{ fmt_date(app.setdate) }}, {{ app.name }}, {{ app.street }}</p>
     
-    {% endfor %}
+	{% endfor %}
+
+      </div>
+
+      <div class="row">
+	Copyright &copy; 2016 - Mark Meyer
+      </div>
+      
+    </div>
   </body>
 </html>
 {% endautoescape %}
