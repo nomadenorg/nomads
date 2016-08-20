@@ -3,22 +3,52 @@
   <head>
     <meta charset="utf-8" />
     <title>nomaden.ofosos.org - Neue Kneipe</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="assets/normalize.css">
+    <link rel="stylesheet" href="assets/skeleton.css">
+    <link rel="stylesheet" href="assets/nomaden.css">
+
   </head>
   <body>
 
-    <h1>Neue Kneipe</h1>
+    <div class="container">
+      
+      <div class="row">
+	
+	<h1>Neue Kneipe</h1>
 
-    <form action="/enterPub" method="post">
-      Name der Kneipe:
-      <input type="text" name="name"><br>
-      Straße:
-      <input type="text" name="street"><br>
-      Stadt/Ort:
-      <input type="text" name="city"><br>
-      ÖPNV:
-      <input type="text" name="publictrans"><br>
-      Wieviele Beine hat ein Kamel?
-      <input type="text" name="magic"><br>
+	<form action="/enterPub" method="post">
+	  
+	  <label for="name">Name der Kneipe:</label>
+	  <input type="text" name="name"><br>
 
-      <input type="submit" value="Eintragen">
-    </form>
+	  <label for="street">Straße:</label>
+	  <input type="text" name="street"><br>
+
+	  <label for="city">Stadt/Ort:</label>
+	  <input type="text" name="city"><br>
+
+	  <label for="publictrans">ÖPNV:</label>
+	  <input type="text" name="publictrans"><br>
+
+	  <label for="magic">Wieviele Beine hat ein Kamel?</label>
+	  <input type="text" name="magic"><br>
+
+	  <input class="button-primary" type="submit" value="Eintragen">
+	</form>
+
+      </div>
+
+
+      <div class="row">
+	
+	<hr>
+	
+	Copyright &copy; 2016 - Mark Meyer
+	
+      </div>
+
+    </div>
+  </body>
+</html>
