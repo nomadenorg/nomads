@@ -44,8 +44,8 @@ class MailContact(ndb.Model):
 
 class NomadicUser(ndb.Model):
     name = ndb.StringProperty()
-    uid = ndb.StringProperty()
-    groups = ndb.LocalStructuredProperty(ndb.StringProperty, repeated=True)
+    mail = ndb.StringProperty()
+    moderator = ndb.BooleanProperty()
 
 # utility & templates
 
@@ -53,6 +53,19 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__) + '/templates'),
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
+
+def get_nomad():
+    nuser = None
+    guser = users.get_current_user()
+
+    if guser:
+        mail = guser.email()
+        q = NomadicUser.query(mail=mail)
+        nuserlis = q.fetch(1)
+        if len(nuserlis) > 0:
+            nuser = nuserlis[0]
+
+    return nuser
 
 # user format date
 def fmt_date(dat):
@@ -113,6 +126,10 @@ class MainPage(webapp2.RequestHandler):
             'loginout_url': loginout_url,
             'loginout_text': loginout_text, }
 
+        nomad = get_nomad()
+        if nomad.moderator:
+            template_values['moderator'] = "yes"
+        
         template = JINJA_ENVIRONMENT.get_template('index.html')
         self.response.write(template.render(template_values))
 
