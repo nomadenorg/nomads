@@ -70,7 +70,7 @@ def get_nomad():
     guser = users.get_current_user()
 
     if guser:
-        mail = guser.email()
+        mail = guser.email().lower()
         q = Nomad.query(Nomad.mail == mail)
         nuserlis = q.fetch(1)
         if len(nuserlis) > 0:
