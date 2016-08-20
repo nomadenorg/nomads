@@ -30,5 +30,8 @@ older ones. Log in to the test appengine via the login button on the
 lower right corner and mark that you're an admin user. Otherwise you
 will not be able to trigger the cronjob.
 
-See the file LICENSE for license information.
+See the file LICENSE for license information to the app. The images
+(favicon.ico, assets/camel.jpg and assets/camel-250.jpg) included are
+owned by the nomaden.org group of people.
+
 See the file CONTRIBUTORS.md for contributor information.
