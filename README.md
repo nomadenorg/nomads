@@ -2,7 +2,7 @@
 
 This is a Google App Engine Project.
 
-You'll find the central application logic in nomaden.py, this defines all logic.
+You'll find the central application logic in nomaden.py, this defines all application logic. The framework is webapp2.
 
 Templates are to be found in templates/*, these are Jinja2 templates.
 
