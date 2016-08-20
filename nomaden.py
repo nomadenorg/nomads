@@ -25,6 +25,7 @@ def apparchive_key(bucket_name=ARCHIVE_BUCKET_NAME):
 class Comment(ndb.Model):
     uname = ndb.StringProperty()
     text = ndb.StringProperty()
+    source = ndb.StringProperty()
 
 class Appointment(ndb.Model):
     name = ndb.StringProperty(indexed=False)
@@ -72,6 +73,16 @@ def previous_tuesday():
         target = target - datetime.timedelta(1)
     return target
 
+# get a source string for reproduceabiltiy purposes
+def generate_source(req):
+    ip = req.remote_addr
+    now = datetime.datetime.now().isoformat()
+    uid = "None"
+    if users.get_current_user():
+        uid = users.get_current_user().user_id()
+
+    return ip + "$" + now + "$" + uid
+
 # http dispatching
     
 class MainPage(webapp2.RequestHandler):
@@ -112,6 +123,8 @@ class EnterPub(webapp2.RequestHandler):
         app.city = self.request.get('city')
         app.publictrans = self.request.get('publictrans')
 
+        app.source = generate_source(self.request)
+
         if self.request.get('magic') == '4':
             query = Appointment.query(ancestor=appointments_key()).filter(Appointment.setdate == None).order(-Appointment.sortorder)
 
@@ -143,6 +156,8 @@ class CommentPub(webapp2.RequestHandler):
             com = Comment()
             com.uname = uname
             com.text = text
+
+            com.source = generate_source(self.request)
         
             app.comments.append(com)
 
