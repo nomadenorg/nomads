@@ -4,14 +4,16 @@
  - Kommentar / Beine - fix
  - Initial Schedule Termine - fix
  - Loeschen Termine - fix
- - Festlegen Geofox Start fuer angemeldete User
  - url escape fuer Geofox und Google Maps - fix
- - mailversand vom cronjob aus
  - SSL? - fix
- - permissions aufdroeseln
  - moderator funktion - fix
+
+ - Festlegen Geofox Start fuer angemeldete User
+ - mailversand vom cronjob aus
+ - permissions aufdroeseln
  - moderator loeschen 
  - Plakat mit Webfonts
  - formatierung der form elemente verbessern
  - refactor templates (i.e. navbar in seperate file, gets tedious)
  - kleines nomaden icon links von der navbar
+ - nachruecken von jobs in vakante slots, die nicht am ende der 4 feststehenden termine liegen
