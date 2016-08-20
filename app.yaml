@@ -43,6 +43,18 @@ handlers:
 - url: /archive
   script: nomaden.app
 
+- url: /moderator
+  script: nomaden.app
+  login: required
+
+- url: /moderatorAdd
+  script: nomaden.app
+  login: admin
+
+- url: /moderatorDel
+  script: nomaden.app
+  login: admin
+
 libraries:
 - name: webapp2
   version: latest

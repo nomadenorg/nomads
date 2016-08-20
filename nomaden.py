@@ -239,6 +239,35 @@ class DeletePub(webapp2.RequestHandler):
                 app.key.delete()
 
         self.redirect('/')
+
+class Moderator(webapp2.RequestHandler):
+    def get(self):
+        q = Nomad.query(Nomad.moderator == True)
+        nomads = q.fetch(100)
+
+        template_values = {
+            'moderators': nomads,
+        }
+
+        template = JINJA_ENVIRONMENT.get_template('moderator.html')
+        self.response.write(template.render(template_values))
+
+class ModeratorAdd(webapp2.RequestHandler):
+    def get(self):
+        name = self.request.get('name')
+        mail = self.request.get('mail')
+
+        nomad = Nomad()
+        nomad.name = name
+        nomad.mail = mail
+        nomad.moderator = True
+        nomad.put()
+
+        self.redirect('/moderator')
+
+class ModeratorDelete(webapp2.RequestHandler):
+    def get(self):
+        pass
         
 # woechentlicher cronjob
 class SchedulePubs(webapp2.RequestHandler):
@@ -290,4 +319,7 @@ app = webapp2.WSGIApplication([
     ('/delete', DeletePub),
     ('/comment', CommentPub),
     ('/archive', Archive),
+    ('/moderator', Moderator),
+    ('/moderatorAdd', ModeratorAdd),
+    ('/moderatorDel', ModeratorDelete),
 ], debug=True)

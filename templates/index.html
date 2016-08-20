@@ -207,6 +207,10 @@
     
 	  You are: <em>{{ username }}</em> <a href="{{ loginout_url }}">{{ loginout_text }}</a>
 
+	  {% if moderator is defined %}
+	  <a href="/moderator">Moderatoren</a>
+	  {% endif %}
+	  
 	</div>
 
 	<div class="twelve columns">
