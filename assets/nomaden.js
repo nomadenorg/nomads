@@ -20,9 +20,9 @@ for (var i = 0; i < cmech.length; i++) {
     }, false);
 }
 
-// navigation
+// stick navbar to the top, once the user scrolls down
 
-    var navOffsetTop;
+var navOffsetTop;
 
 window.onload = function () {
 
