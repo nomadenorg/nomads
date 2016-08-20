@@ -14,3 +14,4 @@
  - Plakat mit Webfonts
  - formatierung der form elemente verbessern
  - refactor templates (i.e. navbar in seperate file, gets tedious)
+ - kleines nomaden icon links von der navbar
