@@ -3,11 +3,11 @@
  - Kommentarfelder - fix
  - Kommentar / Beine - fix
  - Initial Schedule Termine
- - Loeschen Termine
+ - Loeschen Termine - fix
  - Festlegen Geofox Start fuer angemeldete User
  - url escape fuer Geofox und Google Maps
  - mailversand vom cronjob aus
  - SSL?
  - permissions aufdroeseln
- - moderator funktion
+ - moderator funktion -fix
  
