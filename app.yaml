@@ -22,7 +22,6 @@ handlers:
 
 - url: /enterPub
   script: nomaden.app
-  login: required
 
 - url: /schedulePubs
   script: nomaden.app
@@ -30,7 +29,6 @@ handlers:
 
 - url: /moveForward
   script: nomaden.app
-  login: required
 
 - url: /delete
   script: nomaden.app
@@ -38,7 +36,6 @@ handlers:
 
 - url: /comment
   script: nomaden.app
-  login: required
 
 - url: /archive
   script: nomaden.app
