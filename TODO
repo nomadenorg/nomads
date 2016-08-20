@@ -13,3 +13,4 @@
  - moderator loeschen 
  - Plakat mit Webfonts
  - formatierung der form elemente verbessern
+ - refactor templates (i.e. navbar in seperate file, gets tedious)
