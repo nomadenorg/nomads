@@ -22,29 +22,34 @@ for (var i = 0; i < cmech.length; i++) {
 
 // navigation
 
-var navOffsetTop;
-var bd = document.querySelector("body");
-var nav = document.querySelector(".navbar");
+    var navOffsetTop;
 
-navOffsetTop = nav.getBoundingClientRect().top;
+window.onload = function () {
 
-var checkdocked = function () {
-    if ( navOffsetTop < window.pageYOffset &&
-	 !bd.classList.contains("has-docked-nav") ) {
-	bd.classList.add("has-docked-nav");
-    }
 
-    if ( navOffsetTop > window.pageYOffset &&
-	 bd.classList.contains("has-docked-nav") ) {
-	bd.classList.remove("has-docked-nav");
-    }	
-};
+    var bd = document.querySelector("body");
+    var nav = document.querySelector(".navbar");
 
-window.addEventListener("scroll", checkdocked, false);
-window.addEventListener("resize", function () {
     bd.classList.remove("nav-has-docked");
-    navOffsetTop = nav.getBoundingClientRect().top;
-    checkdocked();
-}, false);
+    navOffsetTop = nav.clientTop;
 
-pageXOffset
+    var checkdocked = function () {
+	if ( navOffsetTop < window.pageYOffset &&
+	     !bd.classList.contains("has-docked-nav") ) {
+	    bd.classList.add("has-docked-nav");
+	}
+
+	if ( navOffsetTop > window.pageYOffset &&
+	     bd.classList.contains("has-docked-nav") ) {
+	    bd.classList.remove("has-docked-nav");
+	}	
+    };
+
+    window.addEventListener("scroll", checkdocked, false);
+    window.addEventListener("resize", function () {
+	bd.classList.remove("nav-has-docked");
+	navOffsetTop = nav.getBoundingClientRect().top;
+	checkdocked();
+    }, false);
+    
+};
