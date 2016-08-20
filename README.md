@@ -28,3 +28,6 @@ page. This runs the cronjob that marks pubs as scheduled and archives
 older ones. Log in to the test appengine via the login button on the
 lower right corner and mark that you're an admin user. Otherwise you
 will not be able to trigger the cronjob.
+
+See the file LICENSE for license information.
+See the file CONTRIBUTORS.md for contributor information.
