@@ -98,8 +98,20 @@ class MainPage(webapp2.RequestHandler):
         current_username = "not logged in"
         if users.get_current_user():
             current_username = users.get_current_user().nickname()
-        
-        template_values = { 'username': current_username, 'fixed_apps': fixed_list, 'wait_apps': wait_list }
+
+        loginout_text = "Login"
+        loginout_url = users.create_login_url('/')
+
+        if users.get_current_user():
+            loginout_text = "Logout"
+            loginout_url = users.create_logout_url('/')
+            
+        template_values = {
+            'username': current_username,
+            'fixed_apps': fixed_list,
+            'wait_apps': wait_list,
+            'loginout_url': loginout_url,
+            'loginout_text': loginout_text, }
 
         template = JINJA_ENVIRONMENT.get_template('index.html')
         self.response.write(template.render(template_values))
