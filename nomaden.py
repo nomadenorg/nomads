@@ -91,9 +91,8 @@ def next_tuesday():
     return target
         
 def previous_tuesday():
-    today = datetime.date.today()
-    target = today
-    while today <= target and target.isoweekday() <> 2:
+    target = datetime.date.today()
+    while target.isoweekday() <> 2:
         target = target - datetime.timedelta(1)
     return target
 
@@ -293,7 +292,7 @@ class SchedulePubs(webapp2.RequestHandler):
 
         current_apps = len(current_list)
 
-        last_date = next_tuesday()
+        last_date = previous_tuesday()
         for app in current_list:
             if app.setdate > last_date:
                 last_date = app.setdate
