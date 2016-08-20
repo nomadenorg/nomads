@@ -3,18 +3,60 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="assets/normalize.css">
+    <link rel="stylesheet" href="assets/skeleton.css">
+    <link rel="stylesheet" href="assets/nomaden.css">
     <title>nomaden.ofosos.org</title>
+
+    <script type="text/javascript" src="assets/nomaden.js" defer></script>
   </head>
   <body>
 
-    <img src="assets/camel.jpg">
-    
-    <h1>Die aktuellen Nomaden-Termine</h1>
+    <div class="container">
 
-    <strong> Hinweis: Die Links zu den Kartendiensten sind automatisch erzeugt und nicht notwendigerweise korrekt. Bitte Filter zwischen den Ohren einschalten!</strong>
-    
-    <h2>Die feststehenden Termine</h2>
+      <div class="row">
+	<div class="twelve columns">
+	  
+	  <h1>Die aktuellen Nomaden-Termine</h1>
 
+	</div>
+      </div>
+    </div>
+    
+	  
+    <nav class="navbar">
+      <div class="container">
+        <ul class="navbar-list">
+          <li class="navbar-item"><a class="navbar-link" href="#aktuell">Die Termine</a></li>
+	  <li class="navbar-item">
+	    <a class="navbar-link" href="enterpub.html">Neue Kneipe</a>
+	  </li>
+	  <li class="navbar-item">
+	    <a class="navbar-link" href="archive">Archiv</a>
+	  </li>
+	  <li class="navbar-item pull-right">
+	    <a class="navbar-link" href="about.html">Über uns</a>
+	  </li>
+        </ul>
+      </div>
+    </nav>
+    
+
+    <div class="container">
+      <div class="row">
+	<div class="twelve columns">
+
+	  <div style="text-align:center;">
+	    <img src="assets/camel.jpg">
+	  </div>
+
+    
+    <h2 id="aktuell">Die feststehenden Termine</h2>
+
+        <strong>Hinweis: Die Links zu den Kartendiensten sind automatisch erzeugt und nicht notwendigerweise korrekt. Bitte Filter zwischen den Ohren einschalten!</strong>
+
+    
     {% for app in fixed_apps %}
 
     <p>
@@ -46,33 +88,75 @@
     
     {% for app in wait_apps %}
     
-    <p>
-    {{ app.name }}
-    {{ app.street }}, {{ app.city }} ({{ app.publictrans }})
-    <a href="/moveForward?id={{ app.sortorder }}">Früher</a>
-    <form action="/comment" method="post">
-      <input type="hidden" name="id" value="{{ app.key.urlsafe() }}">
-      <input type="text" name="author">
-      <input type="text" name="text">
-      <input type="submit" value="Kommentieren">
-    </form>
-    </p>
-    
-    {% for comment in app.comments %}
+	  <p>
+	    {{ app.name }}
+	    {{ app.street }}, {{ app.city }} ({{ app.publictrans }})
+	    <a href="/moveForward?id={{ app.sortorder }}">Früher</a>
+	  </p>
 
-    <p>&lt;{{ comment.uname }}&gt; {{comment.text}}</p>
-    
+
+	{% if app.comments %}
+	
+	{% for comment in app.comments %}
+	
+	<p>&lt;{{ comment.uname }}&gt; {{comment.text}}</p>
+	
+	{% endfor %}
+
+	{% else %}
+
+	<em>Keine Kommentare vorhanden.</em>
+	
+	{% endif %}
+
+	</div>
+      </div>
+
+      <div class="row comment-mech">
+
+	<a class="comment-indicator" >Kommentar schreiben</a>
+	<div class="comment-form">
+	<form action="/comment" method="post">
+	  <input type="hidden" name="id" value="{{ app.key.urlsafe() }}">
+	  <div class="three columns">
+
+
+	    <label for="author">Autor</label>
+	    <input type="text" name="author">
+	    
+	  </div>
+
+	  <div class="six columns">
+	    <label for="text">Text</label>
+	    <input type="text" name="text">
+	  </div>
+
+	  <div class="three columns">
+	    <input class="button-primary" type="submit" value="Kommentieren">
+	  </div>
+	</form>
+	</div>
+
+      </div>
+      
+
     {% endfor %}
 
-    {% endfor %}
+      <div class="row">
 
+	<div class="twelve columns">
 
-    <hr>
+	  <hr>
 
-    <a href="/archive">Alte Termine</a>
-    <a href="/enterpub.html">Neue Kneipe</a>
+	  <a href="/archive">Alte Termine</a>
+	  <a href="/enterpub.html">Neue Kneipe</a>
+    
+	  <em>Current user: {{ username }}</em>
 
-    <em>Current user: {{ username }}</em>
+	</div>
+      </div>
+    
+    </div>
     
   </body>
 </html>
