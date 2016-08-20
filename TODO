@@ -10,7 +10,6 @@
 
  - Festlegen Geofox Start fuer angemeldete User
  - mailversand vom cronjob aus
- - permissions aufdroeseln
  - moderator loeschen 
  - Plakat mit Webfonts
  - formatierung der form elemente verbessern
@@ -18,3 +17,4 @@
  - kleines nomaden icon links von der navbar
  - nachruecken von jobs in vakante slots, die nicht am ende der 4 feststehenden termine liegen
  - admin user sollen automatisch moderator berechtigungen haben
+ - remove flicker when stickying the navbar
