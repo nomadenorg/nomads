@@ -4,18 +4,18 @@
 var cmech = document.querySelectorAll(".comment-mech")
 
 for (var i = 0; i < cmech.length; i++) {
-    cm = cmech.item(i);
+    var cm = cmech.item(i);
     
-    var indi = cm.querySelector(".comment-indicator");
-    var form = cm.querySelector(".comment-form");
+    let ind = cm.querySelector(".comment-indicator");
+    let frm = cm.querySelector(".comment-form");
 
-    form.style.display = "none";
+    frm.style.display = "none";
 
-    indi.addEventListener("click", function () {
-	if (form.style.display === "none") {
-	    form.style.display = "block";
+    ind.addEventListener("click", function () {
+	if (frm.style.display === "none") {
+	    frm.style.display = "block";
 	} else {
-	    form.style.display = "none";
+	    frm.style.display = "none";
 	}
     }, false);
 }

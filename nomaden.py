@@ -129,12 +129,13 @@ class CommentPub(webapp2.RequestHandler):
         appid = self.request.get('id')
         uname = self.request.get('author')
         text = self.request.get('text')
+        magic = self.request.get('magic')
 
         key = ndb.Key(urlsafe=appid)
 
         app = key.get()
 
-        if app:
+        if app and magic == "4":
             com = Comment()
             com.uname = uname
             com.text = text

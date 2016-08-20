@@ -27,6 +27,29 @@
 .pull-right {
     float: right; }
 
+p {
+    margin-bottom:0px; }
+
+.comment-mech {
+    margin-bottom: 1rem; }
+
+.comments {
+    margin-top: 1rem;
+    margin-bottom: 1rem; }
+
+.pub {
+    margin-top: 1rem; }
+
+h1 {
+    margin-top: 7rem; margin-bottom: 1rem; }
+
+h2 {
+    margin-top: 2rem; }
+
+.logo {
+    text-align: center; margin-top: 1rem; }
+
+
 /* Larger than phone */
 @media (min-width: 550px) {
   .header {
