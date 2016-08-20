@@ -5,11 +5,11 @@
  - Initial Schedule Termine
  - Loeschen Termine - fix
  - Festlegen Geofox Start fuer angemeldete User
- - url escape fuer Geofox und Google Maps fix
+ - url escape fuer Geofox und Google Maps - fix
  - mailversand vom cronjob aus
- - SSL? fix
+ - SSL? - fix
  - permissions aufdroeseln
- - moderator funktion -fix
+ - moderator funktion - fix
  - moderator loeschen 
  - Plakat mit Webfonts
  - formatierung der form elemente verbessern
