@@ -30,6 +30,10 @@ handlers:
   script: nomaden.app
   login: admin
 
+- url: /publishMail
+  script: nomaden.app
+  login: admin
+
 - url: /move
   script: nomaden.app
   secure: always

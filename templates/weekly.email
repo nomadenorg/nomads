@@ -1,0 +1,10 @@
+Moin!
+
+Hier sind die {{ pubs|length }} feststehenden Kneipentermine:
+
+{% for pub in pubs %}
+  {{ fmt_date(pub.setdate) }}: {{ pub.name }} - {{ pub.street }}, {{ pub.city }} ({{ pub.publictrans }})
+{% endfor %}
+
+Have fun,
+  Die Nomaden-Datenbank

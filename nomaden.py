@@ -2,6 +2,7 @@ import os
 import urllib
 
 from google.appengine.api import users
+from google.appengine.api import mail
 from google.appengine.ext import ndb
 
 from logging import info
@@ -107,6 +108,34 @@ def generate_source(req):
         uid = users.get_current_user().user_id()
 
     return ip + "$" + now + "$" + uid
+
+# email handling
+
+# this is the weekly email we send out
+class NewsEmail:
+    def __init__(self):
+        self.pubs = []
+        self.sender = "Nomaden-Termindatenbank <no-reply@nomaden.ofosos.org>"
+        self.subject = "Nomaden Termine"
+        self.recipients = [ "Mark Meyer <mark@ofosos.org>" ]
+
+    def add_pub(self, pub):
+        self.pubs.append(pub)
+        
+    def build_body(self):
+        template_values = { 'pubs': self.pubs, }
+
+        template = JINJA_ENVIRONMENT.get_template('weekly.email')
+        return template.render(template_values)
+        
+    def send(self):
+        msg_body = self.build_body()
+        
+        for recip in self.recipients:
+            mail.send_mail(sender=self.sender,
+                           to=recip,
+                           subject=self.subject,
+                           body=msg_body)
 
 # http dispatching
 
@@ -301,7 +330,19 @@ class ModeratorAdd(webapp2.RequestHandler):
 class ModeratorDelete(webapp2.RequestHandler):
     def get(self):
         pass
-        
+
+class PublishMail(webapp2.RequestHandler):
+    def get(self):
+        current_query = Appointment.query(ancestor=appointments_key()).filter(Appointment.setdate != None).order(Appointment.setdate)
+
+        current_list = current_query.fetch(4)
+
+        msg = NewsEmail() 
+        for app in current_list:
+            msg.add_pub(app)
+
+        msg.send()
+    
 # woechentlicher cronjob
 class SchedulePubs(webapp2.RequestHandler):
     def get(self):
@@ -351,6 +392,7 @@ app = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/enterPub', EnterPub),
     ('/schedulePubs', SchedulePubs),
+    ('/publishMail', PublishMail),
     ('/move', MovePub),
     ('/delete', DeletePub),
     ('/comment', CommentPub),
