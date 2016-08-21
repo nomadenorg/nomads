@@ -87,8 +87,8 @@ def fmt_date(dat):
 
 JINJA_ENVIRONMENT.globals.update(fmt_date=fmt_date)
 
-def next_tuesday():
-    target = datetime.date.today()
+def next_tuesday(dat):
+    target = dat + datetime.timedelta(1) 
     while target.isoweekday() <> 2:
         target = target + datetime.timedelta(1)
     return target
@@ -280,7 +280,7 @@ class DeletePub(webapp2.RequestHandler):
     def get(self):
         nomad = get_nomad()
 
-        if nomad.moderator:
+        if (nomad and nomad.moderator) or users.is_current_user_admin():
             appid = self.request.get('id')
             app = ndb.Key(urlsafe=appid).get()
 
@@ -370,23 +370,33 @@ class SchedulePubs(webapp2.RequestHandler):
 
         current_apps = len(current_list)
 
+        fill_dates = {}
         last_date = previous_tuesday()
+        
+        for i in range(4):
+            last_date = next_tuesday(last_date)
+            fill_dates[last_date] = 1
+            info("scheduling {}".format(last_date))
+
         for app in current_list:
-            if app.setdate > last_date:
-                last_date = app.setdate
+            if app.setdate in fill_dates:
+                del fill_dates[app.setdate]
 
         # die einzufuegenden, die wir aus der warteliste ziehen
-        need_apps = 4 - current_apps
 
-        if need_apps > 0:
+        klis = sorted(fill_dates.keys(), reverse=True)
+        if len(klis) > 0:
             next_query = Appointment.query(ancestor=appointments_key()).filter(Appointment.setdate == None)
 
-            next_list = next_query.fetch(need_apps)
+            next_list = next_query.fetch(1)
 
-            for app in next_list:
-                last_date = last_date + datetime.timedelta(7)
-                app.setdate = last_date
-                app.put()
+            for dat in klis:
+                if len(next_list) > 0:
+                    app = next_list[0]
+                    app.setdate = dat
+                    app.put()
+
+                    next_list = next_query.fetch(1)
         
 app = webapp2.WSGIApplication([
     ('/', MainPage),
