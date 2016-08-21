@@ -293,6 +293,8 @@ class SchedulePubs(webapp2.RequestHandler):
 
         for app in archive_list:
             newapp = clone_entity(app, parent=apparchive_key())
+            for com in newapp.comments:
+                com.source = None
             newapp.source = None
             newapp.put()
 
