@@ -70,6 +70,8 @@
     
 	    {{ app.street }}, {{ app.city }}<br>
 	    <a target="_blank" href="https://maps.google.com/maps?f=q&hl=en&q={{ app.street }},+Hamburg,+Germany">Google Maps</a> (<a taget="_blank" href="https://www.geofox.de/jsf/home.seam?INPUTSTARTTYP=H&INPUTSTARTTEXT1=Informatikum&INPUTSTARTTEXT2=Hamburg&INPUTUHRZEIT=19:00&INPUTABODERAN=2&INPUTZIELTYP=A&INPUTZIELTEXT2={{ app.city }}&INPUTDATUM=23.08.2016&INPUTZIELTEXT1={{ app.publictrans }}">{{ app.publictrans }}</a>)
+	    <a href="/calendar?id={{ app.key.urlsafe() }}">iCal</a>
+
 	  </p>
 	  
 	  {% if moderator is defined %}

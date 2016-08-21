@@ -12,6 +12,8 @@ import webapp2
 
 import datetime
 
+from ics import Calendar,Event
+
 # model layer
 
 DEFAULT_BUCKET_NAME = 'current_appointments'
@@ -361,6 +363,23 @@ class Poster(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('poster.html')
         self.response.write(template.render(template_values))
 
+class PubCalendar(webapp2.RequestHandler):
+    def get(self):
+        appid = self.request.get('id')
+        app = ndb.Key(urlsafe=appid).get()
+
+        if app:
+            c = Calendar()
+            e = Event()
+
+            e.name = "Nomaden im {}, {} ({})".format(app.name, app.street, app.publictrans)
+            e.begin = datetime.datetime.combine(app.setdate, datetime.time(19))
+
+            c.events.append(e)
+
+            self.response.content_type = 'text/ics'
+            self.response.write(str(c))
+
 # woechentlicher cronjob
 class SchedulePubs(webapp2.RequestHandler):
     def get(self):
@@ -426,6 +445,7 @@ app = webapp2.WSGIApplication([
     ('/comment', CommentPub),
     ('/archive', Archive),
     ('/poster', Poster),
+    ('/calendar', PubCalendar),
     ('/moderator', Moderator),
     ('/moderatorAdd', ModeratorAdd),
     ('/moderatorDel', ModeratorDelete),

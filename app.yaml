@@ -38,6 +38,10 @@ handlers:
   script: nomaden.app
   secure: always
 
+- url: /calendar
+  script: nomaden.app
+  secure: always
+
 - url: /move
   script: nomaden.app
   secure: always
