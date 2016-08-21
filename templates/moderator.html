@@ -18,7 +18,7 @@
       <div class="row">
 	<div class="twelve columns">
 	  
-	  <h1>Moderatoren</h1>
+	  <h1>Moderatoren-Seite</h1>
 
 	</div>
       </div>
@@ -60,7 +60,7 @@
 	      <td>{{ mod.name }}</td>
 	      <td>{{ mod.mail }}</td>
 
-	      <td><a href="/moderatorDel?id={{ mod.key.urlsafe() }}">Löschen</a></td>
+	      <td>{% if is_admin %}<a href="/moderatorDel?id={{ mod.key.urlsafe() }}">Löschen</a>{% endif %}</td>
 	    </tr>
 	    {% endfor %}
 	  </tbody>
@@ -68,6 +68,7 @@
 
 	<h3>Neuer Moderator</h3>
 
+	{% if is_admin %}
 	<form action="/moderatorAdd" method="get">
 
 	  <label for="name">Name</label>
@@ -79,6 +80,12 @@
 	  <input class="button-primary" type="submit" value="Anlegen">
 	  
 	</form>
+
+	{% else %}
+
+	<strong>You need to be an admin to edit the moderator list.</strong>
+
+	{% endif %}
 	
       </div>
     </div>

@@ -109,7 +109,12 @@ def generate_source(req):
     return ip + "$" + now + "$" + uid
 
 # http dispatching
-    
+
+class NomadHandler(webapp2.RequestHandler):
+    def deny(self):
+        self.response.status_int = 403
+        self.response.write("<!DOCTYPE html><html><head><title>Can I haz page...</title></head><body><h1>You cannot haz page</h1></body></html>")
+
 class MainPage(webapp2.RequestHandler):
     def get(self):
         fixed_query = Appointment.query(ancestor=appointments_key()).filter(Appointment.setdate != None).order(Appointment.setdate)
@@ -139,7 +144,7 @@ class MainPage(webapp2.RequestHandler):
             'loginout_text': loginout_text, }
 
         nomad = get_nomad()
-        if nomad and nomad.moderator:
+        if (nomad and nomad.moderator) or users.is_current_user_admin():
             template_values['moderator'] = "yes"
         
         template = JINJA_ENVIRONMENT.get_template('index.html')
@@ -249,17 +254,23 @@ class DeletePub(webapp2.RequestHandler):
                 
         self.redirect('/')
 
-class Moderator(webapp2.RequestHandler):
+class Moderator(NomadHandler):
     def get(self):
-        q = Nomad.query(Nomad.moderator == True)
-        nomads = q.fetch(100)
+        nomad = get_nomad()
 
-        template_values = {
-            'moderators': nomads,
-        }
+        if (nomad and nomad.moderator) or users.is_current_user_admin():
+            q = Nomad.query(Nomad.moderator == True)
+            nomads = q.fetch(100)
+            
+            template_values = {
+                'moderators': nomads,
+                'is_admin': users.is_current_user_admin(),
+            }
 
-        template = JINJA_ENVIRONMENT.get_template('moderator.html')
-        self.response.write(template.render(template_values))
+            template = JINJA_ENVIRONMENT.get_template('moderator.html')
+            self.response.write(template.render(template_values))
+        else:
+            self.deny()
 
 class ModeratorAdd(webapp2.RequestHandler):
     def get(self):
