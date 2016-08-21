@@ -115,7 +115,7 @@ def generate_source(req):
 class NewsEmail:
     def __init__(self):
         self.pubs = []
-        self.sender = "Nomaden-Termindatenbank <no-reply@nomaden.ofosos.org>"
+        self.sender = "Nomaden-Termindatenbank <ofosos@gmail.com>"
         self.subject = "Nomaden Termine"
         self.recipients = [ "Mark Meyer <mark@ofosos.org>" ]
 
