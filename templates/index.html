@@ -141,7 +141,8 @@
 	  <p>
 	    <b>{{ app.name }}</b><br>
 	    {{ app.street }}, {{ app.city }}<br> ({{ app.publictrans }})<br>
-	    <a href="/moveForward?id={{ app.sortorder }}">Früher</a>
+	    <a href="/move?id={{ app.sortorder }}">Früher</a>
+	    <a href="/move?id={{ app.sortorder }}&direction=backward">Später</a>
 	    {% if moderator is defined %}
 	    <a href="/delete?id={{ app.key.urlsafe() }}">Löschen</a>
 	    {% endif %}

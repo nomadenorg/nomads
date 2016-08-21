@@ -30,7 +30,7 @@ handlers:
   script: nomaden.app
   login: admin
 
-- url: /moveForward
+- url: /move
   script: nomaden.app
   secure: always
 

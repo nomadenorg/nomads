@@ -215,24 +215,35 @@ class CommentPub(webapp2.RequestHandler):
 
         self.redirect('/')
         
-class MoveForwardPub(webapp2.RequestHandler):
+class MovePub(webapp2.RequestHandler):
     def get(self):
         sortid = int(self.request.get('id'))
-        query = Appointment.query(ancestor=appointments_key()).filter(Appointment.setdate == None, Appointment.sortorder >= sortid - 1, Appointment.sortorder <= sortid).order(Appointment.sortorder)
-        
-        applis = query.fetch(2)
+        raw_direction = self.request.get('direction', default_value="forward")
 
+        direction = "forward"
+        if raw_direction == "backward":
+            direction = raw_direction
+        
+        applis = []
+        if direction == "forward":
+            query = Appointment.query(ancestor=appointments_key()).filter(Appointment.setdate == None, Appointment.sortorder >= sortid - 1, Appointment.sortorder <= sortid).order(Appointment.sortorder)
+            applis = query.fetch(2)
+        else:
+            query = Appointment.query(ancestor=appointments_key()).filter(Appointment.setdate == None, Appointment.sortorder >= sortid, Appointment.sortorder <= sortid + 1).order(-Appointment.sortorder)
+            applis = query.fetch(2)
+            
         if len(applis) > 1:
             app_a = applis[0]
             app_b = applis[1]
 
-            app_a.sortorder = app_a.sortorder + 1
-            app_b.sortorder = app_b.sortorder - 1
+            tmp = app_a.sortorder;
+            app_a.sortorder = app_b.sortorder
+            app_b.sortorder = tmp
 
             app_a.put()
             app_b.put()
 
-            info('pub moved forward id={}'.format(sortid))
+            info('pub moved direction={} id={}'.format(direction,sortid))
 
         self.redirect('/')
 
@@ -340,7 +351,7 @@ app = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/enterPub', EnterPub),
     ('/schedulePubs', SchedulePubs),
-    ('/moveForward', MoveForwardPub),
+    ('/move', MovePub),
     ('/delete', DeletePub),
     ('/comment', CommentPub),
     ('/archive', Archive),
