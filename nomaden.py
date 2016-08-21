@@ -377,7 +377,8 @@ class PubCalendar(webapp2.RequestHandler):
 
             c.events.append(e)
 
-            self.response.content_type = 'text/ics'
+            self.response.content_type = 'text/calendar'
+            self.response.charset = 'utf-8'
             self.response.write(str(c))
 
 # woechentlicher cronjob
