@@ -4,6 +4,8 @@ import urllib
 from google.appengine.api import users
 from google.appengine.ext import ndb
 
+from logging import info
+
 import jinja2
 import webapp2
 
@@ -178,6 +180,8 @@ class EnterPub(webapp2.RequestHandler):
                 
             app.put()
 
+            info("pub entered")
+
         self.redirect('/')
 
 class CommentPub(webapp2.RequestHandler):
@@ -202,6 +206,8 @@ class CommentPub(webapp2.RequestHandler):
 
             app.put()
 
+            info('comment entered on pub id={}'.format(appid))
+
         self.redirect('/')
         
 class MoveForwardPub(webapp2.RequestHandler):
@@ -221,6 +227,8 @@ class MoveForwardPub(webapp2.RequestHandler):
             app_a.put()
             app_b.put()
 
+            info('pub moved forward id={}'.format(sortid))
+
         self.redirect('/')
 
 class DeletePub(webapp2.RequestHandler):
@@ -236,7 +244,9 @@ class DeletePub(webapp2.RequestHandler):
                 newapp.removed = generate_source(self.request)
                 newapp.put()
                 app.key.delete()
-
+                info("pub deleted key={}".format(appid))
+                
+                
         self.redirect('/')
 
 class Moderator(webapp2.RequestHandler):
@@ -262,6 +272,8 @@ class ModeratorAdd(webapp2.RequestHandler):
         nomad.moderator = True
         nomad.put()
 
+        info("moderator created name = {}, mail = {}".format(name, mail))
+        
         self.redirect('/moderator')
 
 class ModeratorDelete(webapp2.RequestHandler):
