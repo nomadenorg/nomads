@@ -293,6 +293,7 @@ class SchedulePubs(webapp2.RequestHandler):
 
         for app in archive_list:
             newapp = clone_entity(app, parent=apparchive_key())
+            newapp.source = None
             newapp.put()
 
             app.key.delete()
