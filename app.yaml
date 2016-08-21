@@ -34,6 +34,10 @@ handlers:
   script: nomaden.app
   login: admin
 
+- url: /poster
+  script: nomaden.app
+  secure: always
+
 - url: /move
   script: nomaden.app
   secure: always

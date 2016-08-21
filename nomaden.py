@@ -87,6 +87,12 @@ def fmt_date(dat):
 
 JINJA_ENVIRONMENT.globals.update(fmt_date=fmt_date)
 
+def fmt_date_print(dat):
+    return dat.strftime("%d.%m.")
+
+JINJA_ENVIRONMENT.globals.update(fmt_date_print=fmt_date_print)
+
+
 def next_tuesday(dat):
     target = dat + datetime.timedelta(1) 
     while target.isoweekday() <> 2:
@@ -342,7 +348,19 @@ class PublishMail(webapp2.RequestHandler):
             msg.add_pub(app)
 
         msg.send()
-    
+
+class Poster(webapp2.RequestHandler):
+    def get(self):
+        current_query = Appointment.query(ancestor=appointments_key()).filter(Appointment.setdate != None).order(Appointment.setdate)
+
+        current_list = current_query.fetch(4)
+
+        template_values = {
+            'pubs': current_list, }
+
+        template = JINJA_ENVIRONMENT.get_template('poster.html')
+        self.response.write(template.render(template_values))
+
 # woechentlicher cronjob
 class SchedulePubs(webapp2.RequestHandler):
     def get(self):
@@ -407,6 +425,7 @@ app = webapp2.WSGIApplication([
     ('/delete', DeletePub),
     ('/comment', CommentPub),
     ('/archive', Archive),
+    ('/poster', Poster),
     ('/moderator', Moderator),
     ('/moderatorAdd', ModeratorAdd),
     ('/moderatorDel', ModeratorDelete),

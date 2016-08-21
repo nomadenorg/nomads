@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="assets/normalize.css">
+    <link rel="stylesheet" href="assets/skeleton.css">
+    <link rel="stylesheet" href="assets/nomaden-print.css">
+    <title>Das Nomaden Poster</title>
+
+  </head>
+  <body>
+
+    <div class="logo">
+      <img src="assets/camel.jpg">
+    </div>
+
+    <h1>Die Nomaden</h1>
+    <h2>Der Stammtisch des Fachbereichs Informatik</h2>
+    <h2>- Jeden Dienstag in einer anderen Kneipe -</h2>
+
+    <table>
+      {% for pub in pubs %}
+      <tr class="upper">
+	<td class="date">{{ fmt_date_print(pub.setdate) }}</td>
+	<td class="pubname">{{ pub.name }}</td>
+      </tr>
+      <tr class="lower">
+	<td></td>
+	<td class="street">{{ pub.street }}, {{ pub.publictrans }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <h2>Jeweils ab ca. 19:00 Uhr</h2>
+    <hr>
+    <h2>Alles weitere und jeweils aktuelle Termine unter</h2>
+    <h2>http://www.nomaden.org</h2>
+
+  </body>
+</html>
+{% endautoescape %}

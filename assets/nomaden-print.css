@@ -1,0 +1,26 @@
+
+body { text-align:center; margin: 5mm; text-transform:uppercase; }
+
+h1 { font-size:36pt; }
+
+h2 { font-size:24pt; }
+
+td.date { font-size:24pt; text-transform:uppercase; }
+
+td.pubname { font-size:30pt; text-transform:uppercase; }
+
+td.street { font-size:24pt; text-transform:uppercase; }
+
+tr.lower > td { padding-top: 0px; }
+tr.upper > td { padding-bottom: 0px; }
+
+table { margin-left: 2cm; }
+
+td, tr { border:none; }
+
+div.logo > img { width: 240mm; }
+
+@media print {
+  @page { margin: 0; }
+  body { margin: 16mm; }
+}
