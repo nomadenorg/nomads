@@ -148,6 +148,12 @@ class NewsEmail:
 # http dispatching
 
 class NomadHandler(webapp2.RequestHandler):
+    def set_headers(self):
+        self.response.headers['Content-Security-Policy'] = "default-src 'self'; img-src 'self'; frame-ancestors 'none'"
+        self.response.headers['Strict-Transport-Security'] =  "max-age=31536000"
+        self.response.headers['X-Frame-Options'] = "DENY"
+        self.response.headers['X-XSS-Protection'] = "1; mode=block"
+        
     def deny(self):
         self.response.status_int = 403
         self.response.write("<!DOCTYPE html><html><head><title>Can I haz page...</title></head><body><h1>You cannot haz page</h1></body></html>")
