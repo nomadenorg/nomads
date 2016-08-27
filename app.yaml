@@ -65,7 +65,7 @@ handlers:
   script: nomaden.app
   login: required
   secure: always
-k
+
 - url: /comment
   script: nomaden.app
   secure: always
