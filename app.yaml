@@ -9,14 +9,29 @@ handlers:
 - url: /favicon\.ico
   static_files: favicon.ico
   upload: favicon.ico
+  http_headers:
+    Content-Security-Policy: "default-src 'self'; img-src 'self'; frame-ancestors 'none'"
+    Strict-Transport-Security: "max-age=31536000"
+    X-Frame-Options: "DENY"
+    X-XSS-Protection: "1; mode=block"
 
 - url: /assets
   static_dir: assets
+  http_headers:
+    Content-Security-Policy: "default-src 'self'; img-src 'self'; frame-ancestors 'none'"
+    Strict-Transport-Security: "max-age=31536000"
+    X-Frame-Options: "DENY"
+    X-XSS-Protection: "1; mode=block"
 
 - url: /enterpub.html
   static_files: enterpub.html
   upload: enterpub.html
   secure: always
+  http_headers:
+    Content-Security-Policy: "default-src 'self'; img-src 'self'; frame-ancestors 'none'"
+    Strict-Transport-Security: "max-age=31536000"
+    X-Frame-Options: "DENY"
+    X-XSS-Protection: "1; mode=block"
 
 - url: /
   script: nomaden.app
@@ -29,7 +44,7 @@ handlers:
 - url: /schedulePubs
   script: nomaden.app
   login: admin
-
+  
 - url: /publishMail
   script: nomaden.app
   login: admin
@@ -45,12 +60,12 @@ handlers:
 - url: /move
   script: nomaden.app
   secure: always
-
+ 
 - url: /delete
   script: nomaden.app
   login: required
   secure: always
-
+k
 - url: /comment
   script: nomaden.app
   secure: always
