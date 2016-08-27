@@ -153,13 +153,17 @@ class NomadHandler(webapp2.RequestHandler):
         self.response.headers['Strict-Transport-Security'] =  "max-age=31536000"
         self.response.headers['X-Frame-Options'] = "DENY"
         self.response.headers['X-XSS-Protection'] = "1; mode=block"
+        self.response.headers['X-Content-Type-Options'] = 'nosniff'
+        self.response.headers['Public-Key-Pins'] = 'pin-sha256="base64=="; max-age=expireTime'
         
     def deny(self):
         self.response.status_int = 403
         self.response.write("<!DOCTYPE html><html><head><title>Can I haz page...</title></head><body><h1>You cannot haz page</h1></body></html>")
 
-class MainPage(webapp2.RequestHandler):
+class MainPage(NomadHandler):
     def get(self):
+        self.set_headers()
+        
         fixed_query = Appointment.query(ancestor=appointments_key()).filter(Appointment.setdate != None).order(Appointment.setdate)
 
         fixed_list = fixed_query.fetch(4)
@@ -193,8 +197,10 @@ class MainPage(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('index.html')
         self.response.write(template.render(template_values))
 
-class Archive(webapp2.RequestHandler):
+class Archive(NomadHandler):
     def get(self):
+        self.set_headers()
+        
         archive_query = Appointment.query(ancestor=apparchive_key()).order(Appointment.setdate)
         archive_list = archive_query.fetch()
 
@@ -203,8 +209,10 @@ class Archive(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('archive.html')
         self.response.write(template.render(template_values))
         
-class EnterPub(webapp2.RequestHandler):
+class EnterPub(NomadHandler):
     def post(self):
+        self.set_headers()
+        
         app = Appointment(parent=appointments_key())
 
         app.name = self.request.get('name')
@@ -232,8 +240,10 @@ class EnterPub(webapp2.RequestHandler):
 
         self.redirect('/')
 
-class CommentPub(webapp2.RequestHandler):
+class CommentPub(NomadHandler):
     def post(self):
+        self.set_headers()
+        
         appid = self.request.get('id')
         uname = self.request.get('author')
         text = self.request.get('text')
@@ -258,8 +268,10 @@ class CommentPub(webapp2.RequestHandler):
 
         self.redirect('/')
         
-class MovePub(webapp2.RequestHandler):
+class MovePub(NomadHandler):
     def get(self):
+        self.set_headers()
+        
         sortid = int(self.request.get('id'))
         raw_direction = self.request.get('direction', default_value="forward")
 
@@ -290,8 +302,10 @@ class MovePub(webapp2.RequestHandler):
 
         self.redirect('/')
 
-class DeletePub(webapp2.RequestHandler):
+class DeletePub(NomadHandler):
     def get(self):
+        self.set_headers()
+        
         nomad = get_nomad()
 
         if (nomad and nomad.moderator) or users.is_current_user_admin():
@@ -310,6 +324,7 @@ class DeletePub(webapp2.RequestHandler):
 
 class Moderator(NomadHandler):
     def get(self):
+        self.set_headers()
         nomad = get_nomad()
 
         if (nomad and nomad.moderator) or users.is_current_user_admin():
@@ -326,8 +341,10 @@ class Moderator(NomadHandler):
         else:
             self.deny()
 
-class ModeratorAdd(webapp2.RequestHandler):
+class ModeratorAdd(NomadHandler):
     def get(self):
+        self.set_header()
+        
         name = self.request.get('name')
         mail = self.request.get('mail')
 
@@ -345,8 +362,10 @@ class ModeratorDelete(webapp2.RequestHandler):
     def get(self):
         pass
 
-class PublishMail(webapp2.RequestHandler):
+class PublishMail(NomadHandler):
     def get(self):
+        self.set_headers()
+        
         current_query = Appointment.query(ancestor=appointments_key()).filter(Appointment.setdate != None).order(Appointment.setdate)
 
         current_list = current_query.fetch(4)
@@ -357,8 +376,10 @@ class PublishMail(webapp2.RequestHandler):
 
         msg.send()
 
-class Poster(webapp2.RequestHandler):
+class Poster(NomadHandler):
     def get(self):
+        self.set_headers()
+        
         current_query = Appointment.query(ancestor=appointments_key()).filter(Appointment.setdate != None).order(Appointment.setdate)
 
         current_list = current_query.fetch(4)
@@ -369,8 +390,10 @@ class Poster(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('poster.html')
         self.response.write(template.render(template_values))
 
-class PubCalendar(webapp2.RequestHandler):
+class PubCalendar(NomadHandler):
     def get(self):
+        self.set_headers()
+        
         appid = self.request.get('id')
         app = ndb.Key(urlsafe=appid).get()
 
@@ -388,9 +411,9 @@ class PubCalendar(webapp2.RequestHandler):
             self.response.write(str(c))
 
 # woechentlicher cronjob
-class SchedulePubs(webapp2.RequestHandler):
+class SchedulePubs(NomadHandler):
     def get(self):
-
+        self.set_headers()
         # wir haben drei gruppen
 
         # die fertig geplanten, feststehenden termine
