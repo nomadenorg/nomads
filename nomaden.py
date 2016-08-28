@@ -287,7 +287,7 @@ class MovePub(NomadHandler):
     def get(self):
         self.set_headers()
         
-        sortid = int(self.request.get('id'))
+        sortid = self.vrfy_posint(self.request.get('id'))
         raw_direction = self.request.get('direction', default_value="forward")
 
         direction = "forward"
