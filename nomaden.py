@@ -11,6 +11,7 @@ import jinja2
 import webapp2
 
 import datetime
+import re
 
 from ics import Calendar,Event
 
@@ -145,9 +146,17 @@ class NewsEmail:
                            subject=self.subject,
                            body=msg_body)
 
+class ParameterError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return "Invalid parameter value: " + repr(value)x
+            
 # http dispatching
 
 class NomadHandler(webapp2.RequestHandler):
+    self.posint_pat = re.compile(r'^[0-9]+$')
+    
     def set_headers(self):
         self.response.headers['Content-Security-Policy'] = "default-src 'self'; img-src 'self'; frame-ancestors 'none'"
         self.response.headers['Strict-Transport-Security'] =  "max-age=31536000"
@@ -155,6 +164,12 @@ class NomadHandler(webapp2.RequestHandler):
         self.response.headers['X-XSS-Protection'] = "1; mode=block"
         self.response.headers['X-Content-Type-Options'] = 'nosniff'
         self.response.headers['Public-Key-Pins'] = 'pin-sha256="base64=="; max-age=expireTime'
+
+    def vrfy_posint(self, s):
+        if posint_pat.match(s):
+            return int(s)
+        else:
+            raise ParameterError(s)
         
     def deny(self):
         self.response.status_int = 403
