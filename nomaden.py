@@ -163,7 +163,6 @@ class NomadHandler(webapp2.RequestHandler):
         self.response.headers['X-Frame-Options'] = "DENY"
         self.response.headers['X-XSS-Protection'] = "1; mode=block"
         self.response.headers['X-Content-Type-Options'] = 'nosniff'
-        self.response.headers['Public-Key-Pins'] = 'pin-sha256="base64=="; max-age=expireTime'
 
     def vrfy_posint(self, s):
         if posint_pat.match(s):
