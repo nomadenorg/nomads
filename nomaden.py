@@ -155,7 +155,8 @@ class ParameterError(Exception):
 # http dispatching
 
 class NomadHandler(webapp2.RequestHandler):
-    self.posint_pat = re.compile(r'^[0-9]+$')
+    def __init__():
+        self.posint_pat = re.compile(r'^[0-9]+$')
     
     def set_headers(self):
         self.response.headers['Content-Security-Policy'] = "default-src 'self'; img-src 'self'; frame-ancestors 'none'"
