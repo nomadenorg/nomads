@@ -150,7 +150,7 @@ class ParameterError(Exception):
     def __init__(self, value):
         self.value = value
     def __str__(self):
-        return "Invalid parameter value: " + repr(value)x
+        return "Invalid parameter value: " + repr(value)
             
 # http dispatching
 
