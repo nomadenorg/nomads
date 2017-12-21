@@ -15,7 +15,6 @@ handlers:
     X-Frame-Options: "DENY"
     X-XSS-Protection: "1; mode=block"
     X-Content-Type-Options: "nosniff"
-    Public-Key-Pins: "pin-sha256=\"base64==\"; max-age=expireTime"
 
 - url: /assets
   static_dir: assets
@@ -25,7 +24,6 @@ handlers:
     X-Frame-Options: "DENY"
     X-XSS-Protection: "1; mode=block"
     X-Content-Type-Options: nosniff
-    Public-Key-Pins: "pin-sha256=\"base64==\"; max-age=expireTime"
 
 - url: /enterpub.html
   static_files: enterpub.html
@@ -37,7 +35,6 @@ handlers:
     X-Frame-Options: "DENY"
     X-XSS-Protection: "1; mode=block"
     X-Content-Type-Options: nosniff
-    Public-Key-Pins: "pin-sha256=\"base64==\"; max-age=expireTime"
 
 - url: /
   script: nomaden.app
