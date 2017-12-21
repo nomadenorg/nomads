@@ -372,10 +372,6 @@ class ModeratorAdd(NomadHandler):
         
         self.redirect('/moderator')
 
-class ModeratorDelete(webapp2.RequestHandler):
-    def get(self):
-        pass
-
 class PublishMail(NomadHandler):
     def get(self):
         self.set_headers()

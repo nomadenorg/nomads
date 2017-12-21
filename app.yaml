@@ -87,11 +87,6 @@ handlers:
   login: admin
   secure: always
 
-- url: /moderatorDel
-  script: nomaden.app
-  login: admin
-  secure: always
-
 libraries:
 - name: webapp2
   version: latest
