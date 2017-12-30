@@ -1,4 +1,3 @@
-from google.appengine.api import mail
 from google.appengine.ext import ndb
 
 from logging import info
@@ -11,6 +10,9 @@ from flask_login import LoginManager, current_user, login_required,\
 
 from hashlib import pbkdf2_hmac
 from binascii import unhexlify
+
+from smtplib import SMTP
+from email.mime.text import MIMEText
 
 import datetime
 import re
@@ -135,17 +137,20 @@ class NewsEmail:
     def build_body(self):
         template_values = {'pubs': self.pubs}
 
-        template = JINJA_ENVIRONMENT.get_template('weekly.email')
-        return template.render(template_values)
+        return render_template('weekly.email', **template_values)
 
     def send(self):
         msg_body = self.build_body()
+        msg = MIMEText(msg_body)
+        msg['Subject'] = self.subject
+        msg['From'] = self.sender
+        msg['To'] = ', '.join(self.recipients)
 
-        for recip in self.recipients:
-            mail.send_mail(sender=self.sender,
-                           to=recip,
-                           subject=self.subject,
-                           body=msg_body)
+        s = SMTP('localhost')
+
+        s.sendmail(self.sender,
+                   self.recipients,
+                   msg.as_string())
 
 
 class ParameterError(Exception):
@@ -466,6 +471,8 @@ def publish_mail():
         msg.add_pub(appo)
 
     msg.send()
+
+    return redirect(url_for('main_page'))
 
 
 @app.route('/poster', methods=['GET'])
