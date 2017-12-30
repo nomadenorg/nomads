@@ -73,6 +73,10 @@ class Appointment(ndb.Model):
     removed = ndb.StringProperty()
 
     @classmethod
+    def by_id(cls, appid):
+        return ndb.Key(urlsafe=appid).get()
+
+    @classmethod
     def get_current(cls):
         current_query = Appointment.query(ancestor=appointments_key()).\
             filter(Appointment.setdate != None).\
@@ -439,7 +443,7 @@ def move_pub():
 def delete():
     if current_user.is_active:
         appid = request.args.get('id')
-        appo = ndb.Key(urlsafe=appid).get()
+        appo = Appointment.by_id(appid)
 
         if appo:
             newapp = clone_entity(appo, parent=bitbucket_key())
