@@ -65,6 +65,30 @@ class Appointment(ndb.Model):
     comments = ndb.LocalStructuredProperty(Comment, repeated=True)
     removed = ndb.StringProperty()
 
+    @classmethod
+    def get_current(cls):
+        current_query = Appointment.query(ancestor=appointments_key()).\
+            filter(Appointment.setdate != None).\
+            order(Appointment.setdate)
+
+        return current_query.fetch()
+
+    @classmethod
+    def get_waiting(cls):
+        wait_query = Appointment.query(ancestor=appointments_key()).\
+            filter(Appointment.setdate == None).\
+            order(Appointment.sortorder)
+
+        return wait_query.fetch()
+
+    @classmethod
+    def get_archive(cls):
+        archive_query = Appointment.query(ancestor=apparchive_key()).\
+            order(Appointment.setdate)
+
+        return archive_query.fetch()
+
+
 
 def clone_entity(e, **extra_args):
     klass = e.__class__
@@ -259,17 +283,9 @@ def logout():
 @app.route('/index', methods=['GET'])
 @app.route('/', methods=['GET'])
 def main_page():
-    fixed_query = Appointment.query(ancestor=appointments_key()).\
-        filter(Appointment.setdate != None).\
-        order(Appointment.setdate)
+    fixed_list = Appointment.get_current()
 
-    fixed_list = fixed_query.fetch(4)
-
-    wait_query = Appointment.query(ancestor=appointments_key()).\
-        filter(Appointment.setdate == None).\
-        order(Appointment.sortorder)
-
-    wait_list = wait_query.fetch()
+    wait_list = Appointment.get_waiting()
 
     current_username = "not logged in"
     if current_user.is_active:
@@ -304,9 +320,7 @@ def application_error(e):
 
 @app.route('/archive', methods=['GET'])
 def archive():
-    archive_query = Appointment.query(ancestor=apparchive_key()).\
-        order(Appointment.setdate)
-    archive_list = archive_query.fetch()
+    archive_list = Appointment.get_archive()
 
     template_values = {'archive_apps': archive_list}
 
@@ -451,11 +465,7 @@ def moderator():
 @app.route('/publishMail', methods=['GET'])
 @login_required
 def publish_mail():
-    current_query = Appointment.query(ancestor=appointments_key()).\
-        filter(Appointment.setdate != None).\
-        order(Appointment.setdate)
-
-    current_list = current_query.fetch(4)
+    current_list = Appointment.get_current()
 
     msg = NewsEmail()
     for appo in current_list:
@@ -468,11 +478,7 @@ def publish_mail():
 
 @app.route('/poster', methods=['GET'])
 def poster():
-    current_query = Appointment.query(ancestor=appointments_key()).\
-        filter(Appointment.setdate != None).\
-        order(Appointment.setdate)
-
-    current_list = current_query.fetch(4)
+    current_list = Appointment.get_current()
 
     template_values = {
         'pubs': current_list, }
@@ -522,12 +528,7 @@ def schedule_pubs():
         appo.key.delete()
 
     # die aktuellen, also schon geplanten
-    current_query = Appointment.query(ancestor=appointments_key()).\
-        filter(Appointment.setdate > datetime.date.today())
-
-    current_list = current_query.fetch()
-
-    current_apps = len(current_list)
+    current_list = Appointment.get_current()
 
     fill_dates = {}
     last_date = previous_tuesday()
