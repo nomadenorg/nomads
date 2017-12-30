@@ -257,7 +257,7 @@ def login():
 @app.route('/logout', methods=['GET'])
 def logout():
     logout_user()
-    redirect(url_for('main_page'))
+    return redirect(url_for('main_page'))
 
 
 @app.route('/index', methods=['GET'])
