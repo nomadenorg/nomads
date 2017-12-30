@@ -36,7 +36,7 @@
 	    <a class="navbar-link" href="archive">Archiv</a>
 	  </li>
 	  <li class="navbar-item pull-right">
-	    <a class="navbar-link" href="http://www.nomaden.org/nomaden.html">Über uns</a>
+	    <a class="navbar-link" href="http://www.nomaden.org/nomaden.html">&Uuml;er uns</a>
 	  </li>
         </ul>
       </div>
@@ -76,7 +76,7 @@
 	  
 	  {% if moderator is defined %}
 	  <p>
-	    <a href="/delete?id={{ app.key.urlsafe() }}">Löschen</a>
+	    <a href="/delete?id={{ app.key.urlsafe() }}">L&ouml;schen</a>
 	  </p>
 	  {% endif %}
 	    
@@ -143,10 +143,10 @@
 	  <p>
 	    <b>{{ app.name }}</b><br>
 	    {{ app.street }}, {{ app.city }}<br> ({{ app.publictrans }})<br>
-	    <a href="/move?id={{ app.sortorder }}">Früher</a>
-	    <a href="/move?id={{ app.sortorder }}&direction=backward">Später</a>
+	    <a href="/move?id={{ app.sortorder }}">Fr&uuml;er</a>
+	    <a href="/move?id={{ app.sortorder }}&direction=backward">Sp&auml;ter</a>
 	    {% if moderator is defined %}
-	    <a href="/delete?id={{ app.key.urlsafe() }}">Löschen</a>
+	    <a href="/delete?id={{ app.key.urlsafe() }}">L&ouml;schen</a>
 	    {% endif %}
 	  </p>
 
