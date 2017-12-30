@@ -143,7 +143,9 @@
 	  <p>
 	    <b>{{ app.name }}</b><br>
 	    {{ app.street }}, {{ app.city }}<br> ({{ app.publictrans }})<br>
+	    {% if app.sortorder > 1 %}
 	    <a href="/move?id={{ app.sortorder }}">Fr&uuml;er</a>
+	    {% endif %}
 	    <a href="/move?id={{ app.sortorder }}&direction=backward">Sp&auml;ter</a>
 	    {% if moderator is defined %}
 	    <a href="/delete?id={{ app.get_id() }}">L&ouml;schen</a>
