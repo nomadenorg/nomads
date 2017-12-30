@@ -66,11 +66,6 @@ class Appointment(ndb.Model):
     removed = ndb.StringProperty()
 
 
-class MailContact(ndb.Model):
-    name = ndb.StringProperty()
-    email = ndb.StringProperty()
-
-
 def clone_entity(e, **extra_args):
     klass = e.__class__
     props = dict((v._code_name, v.__get__(e, klass)) for v in klass._properties.itervalues() if type(v) is not ndb.ComputedProperty)
