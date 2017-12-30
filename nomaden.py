@@ -72,13 +72,16 @@ class Appointment(ndb.Model):
     comments = ndb.LocalStructuredProperty(Comment, repeated=True)
     removed = ndb.StringProperty()
 
+    # return a url safe id
     def get_id(self):
         return self.key.urlsafe()
 
+    # fetch an appointment by a url safe id
     @classmethod
     def by_id(cls, appid):
         return ndb.Key(urlsafe=appid).get()
 
+    # get currently scheduled pubs
     @classmethod
     def get_current(cls):
         current_query = Appointment.query(ancestor=appointments_key()).\
@@ -87,6 +90,7 @@ class Appointment(ndb.Model):
 
         return current_query.fetch()
 
+    # get waiting list
     @classmethod
     def get_waiting(cls):
         wait_query = Appointment.query(ancestor=appointments_key()).\
@@ -95,6 +99,7 @@ class Appointment(ndb.Model):
 
         return wait_query.fetch()
 
+    # get archived appointments
     @classmethod
     def get_archive(cls):
         archive_query = Appointment.query(ancestor=apparchive_key()).\
@@ -102,6 +107,7 @@ class Appointment(ndb.Model):
 
         return archive_query.fetch()
 
+    # archive this appointment
     def archive(self):
         newapp = clone_entity(self, parent=apparchive_key())
         for com in newapp.comments:
