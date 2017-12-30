@@ -117,7 +117,6 @@ def generate_source(req):
 
 # email handling
 
-
 # this is the weekly email we send out
 class NewsEmail:
     def __init__(self):
@@ -157,7 +156,6 @@ class ParameterError(Exception):
 
 
 # user management
-
 
 class NomadicUser:
     def __init__(self, alg, salt, rounds, secret, username):
@@ -208,29 +206,27 @@ def load_user(user_id):
 # http dispatching
 
 
+@app.after_request
+def set_headers(response):
+    response.headers['Content-Security-Policy'] =\
+        "default-src 'self'; img-src 'self'; frame-ancestors 'none'"
+    response.headers['Strict-Transport-Security'] =\
+        "max-age=31536000"
+    response.headers['X-Frame-Options'] = "DENY"
+    response.headers['X-XSS-Protection'] = "1; mode=block"
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+
+    return response
+
+
 class NomadHandler():
     posint_pat = re.compile(r'^[0-9]+$')
-
-    def set_headers(self):
-        self.response.headers['Content-Security-Policy'] =\
-            "default-src 'self'; img-src 'self'; frame-ancestors 'none'"
-        self.response.headers['Strict-Transport-Security'] =\
-            "max-age=31536000"
-        self.response.headers['X-Frame-Options'] = "DENY"
-        self.response.headers['X-XSS-Protection'] = "1; mode=block"
-        self.response.headers['X-Content-Type-Options'] = 'nosniff'
 
     def vrfy_posint(self, s):
         if self.posint_pat.match(s):
             return int(s)
         else:
             raise ParameterError(s)
-        
-    def deny(self):
-        self.response.status_int = 403
-        self.response.write("<!DOCTYPE html><html><head><title>"
-                            "Can I haz page...</title></head><body>"
-                            "<h1>You cannot haz page</h1></body></html>")
 
 
 @app.route('/login', methods=['GET', 'POST'])
