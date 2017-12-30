@@ -36,28 +36,6 @@ handlers:
     X-XSS-Protection: "1; mode=block"
     X-Content-Type-Options: nosniff
 
-- url: /moderator
-  script: nomaden.app
-  login: required
-  secure: always
-
-- url: /moderatorAdd
-  script: nomaden.app
-  login: admin
-  secure: always
-
-- url: /delete
-  script: nomaden.app
-  login: required
-  secure: always
-
-- url: /schedulePubs
-  script: nomaden.app
-  login: admin
-  
-- url: /publishMail
-  script: nomaden.app
-  login: admin
-
 - url: /.*
   script: nomaden.app
+  secure: always

@@ -1,4 +1,3 @@
-from google.appengine.api import users
 from google.appengine.api import mail
 from google.appengine.ext import ndb
 
@@ -7,14 +6,23 @@ from logging import info
 from flask import Flask, render_template, request, redirect, url_for,\
     make_response
 
+from flask_login import LoginManager, current_user, login_required,\
+    login_user, logout_user
+
+from hashlib import pbkdf2_hmac
+from binascii import unhexlify
+
 import datetime
 import re
 
 from ics import Calendar, Event
 
-# flask app
+# flask app & login manager
 
 app = Flask(__name__)
+login_manager = LoginManager()
+login_manager.init_app(app)
+app.secret_key = 'This is just a Testing scenario'
 
 # model layer
 
@@ -61,12 +69,6 @@ class MailContact(ndb.Model):
     email = ndb.StringProperty()
 
 
-class Nomad(ndb.Model):
-    name = ndb.StringProperty()
-    mail = ndb.StringProperty()
-    moderator = ndb.BooleanProperty()
-
-
 def clone_entity(e, **extra_args):
     klass = e.__class__
     props = dict((v._code_name, v.__get__(e, klass)) for v in klass._properties.itervalues() if type(v) is not ndb.ComputedProperty)
@@ -75,20 +77,6 @@ def clone_entity(e, **extra_args):
 
 
 # utility & templates
-
-
-def get_nomad():
-    nuser = None
-    guser = users.get_current_user()
-
-    if guser:
-        mail = guser.email().lower()
-        q = Nomad.query(Nomad.mail == mail)
-        nuserlis = q.fetch(1)
-        if len(nuserlis) > 0:
-            nuser = nuserlis[0]
-
-    return nuser
 
 
 # user format date
@@ -124,8 +112,8 @@ def previous_tuesday():
 def generate_source(req):
     now = datetime.datetime.now().isoformat()
     uid = "None"
-    if users.get_current_user():
-        uid = users.get_current_user().user_id()
+    if current_user.is_active:
+        uid = current_user.get_id()
 
     return now + "$" + uid
 
@@ -168,7 +156,57 @@ class ParameterError(Exception):
         return "Invalid parameter value: " + repr(self.value)
 
 
+# user management
+
+
+class NomadicUser:
+    def __init__(self, alg, salt, rounds, secret, username):
+        self.alg = alg
+        self.salt = salt
+        self.rounds = rounds
+        self.secret = secret
+        self.username = username
+        self.is_authenticated = True
+        self.is_active = True
+        self.is_anonymous = False
+
+    def check_pw(self, pw):
+        check = pbkdf2_hmac(self.alg, pw,
+                            self.salt, self.rounds)
+        return check == self.secret
+
+    def get_id(self):
+        return self.username
+
+
+userdict = {}
+
+
+def load_users(aDict):
+    userfile = open('users.txt', 'r')
+    for line in userfile:
+        if len(line) > 0:
+            tmp = line[:-1]
+            alg, salt, rounds, secret, username = tmp.split(':')
+            username = username.decode('utf-8')
+            secret = unhexlify(secret)
+            salt = unhexlify(salt)
+            rounds = int(rounds)
+            aDict[username] = NomadicUser(alg, salt, rounds, secret, username)
+
+
+load_users(userdict)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    if user_id in userdict:
+        return userdict[user_id]
+    return None
+
+
 # http dispatching
+
 
 class NomadHandler():
     posint_pat = re.compile(r'^[0-9]+$')
@@ -195,6 +233,33 @@ class NomadHandler():
                             "<h1>You cannot haz page</h1></body></html>")
 
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        return render_template('login.html')
+    else:
+        uname = request.form.get('username')
+        pw = request.form.get('password')
+
+        if uname in userdict:
+            user = userdict[uname]
+            if user.check_pw(pw):
+                login_user(user)
+                return redirect(url_for('main_page'))
+            else:
+                return render_template('login.html',
+                                       msg='Username or password wrong')
+        else:
+            return render_template('login.html',
+                                   msg='Username or password wrong')
+
+
+@app.route('/logout', methods=['GET'])
+def logout():
+    logout_user()
+    redirect(url_for('main_page'))
+
+
 @app.route('/index', methods=['GET'])
 @app.route('/', methods=['GET'])
 def main_page():
@@ -211,20 +276,19 @@ def main_page():
     wait_list = wait_query.fetch()
 
     current_username = "not logged in"
-    if users.get_current_user():
-        current_username = users.get_current_user().nickname()
+    if current_user.is_active:
+        current_username = current_user.get_id()
 
     loginout_text = "Login"
-    loginout_url = users.create_login_url('/')
+    loginout_url = url_for('login')
 
-    if users.get_current_user():
+    if current_user.is_active:
         loginout_text = "Logout"
-        loginout_url = users.create_logout_url('/')
+        loginout_url = url_for('logout')
 
     moderator = 'no'
 
-    nomad = get_nomad()
-    if (nomad and nomad.moderator) or users.is_current_user_admin():
+    if current_user.is_active:
         moderator = "yes"
 
     return render_template('index.html',
@@ -255,14 +319,14 @@ def archive():
 
 @app.route('/enterPub', methods=['POST'])
 def enter_pub():
-    app = Appointment(parent=appointments_key())
+    appo = Appointment(parent=appointments_key())
 
-    app.name = request.form['name']
-    app.street = request.form['street']
-    app.city = request.form['city']
-    app.publictrans = request.form['publictrans']
+    appo.name = request.form['name']
+    appo.street = request.form['street']
+    appo.city = request.form['city']
+    appo.publictrans = request.form['publictrans']
 
-    app.source = generate_source(request)
+    appo.source = generate_source(request)
 
     if request.form['magic'] == '4':
         query = Appointment.query(ancestor=appointments_key()).\
@@ -276,9 +340,9 @@ def enter_pub():
             prev_app = applis[0]
             sorder = prev_app.sortorder + 1
 
-        app.sortorder = sorder
+        appo.sortorder = sorder
 
-        app.put()
+        appo.put()
 
         info("pub entered")
 
@@ -294,18 +358,18 @@ def comment():
 
     key = ndb.Key(urlsafe=appid)
 
-    app = key.get()
+    appo = key.get()
 
-    if app and magic == "4":
+    if appo and magic == "4":
         com = Comment()
         com.uname = uname
         com.text = text
 
         com.source = generate_source(request)
 
-        app.comments.append(com)
+        appo.comments.append(com)
 
-        app.put()
+        appo.put()
 
         info('comment entered on pub id={}'.format(appid))
 
@@ -353,34 +417,33 @@ def move_pub():
 
 
 @app.route('/delete', methods=['GET'])
+@login_required
 def delete():
-    nomad = get_nomad()
-
-    if (nomad and nomad.moderator) or users.is_current_user_admin():
+    if current_user.is_active:
         appid = request.args.get('id')
-        app = ndb.Key(urlsafe=appid).get()
+        appo = ndb.Key(urlsafe=appid).get()
 
-        if app:
-            newapp = clone_entity(app, parent=bitbucket_key())
+        if appo:
+            newapp = clone_entity(appo, parent=bitbucket_key())
             newapp.removed = generate_source(request)
             newapp.put()
-            app.key.delete()
+            appo.key.delete()
             info("pub deleted key={}".format(appid))
 
     return redirect(url_for('main_page'))
 
 
 @app.route('/moderator', methods=['GET'])
+@login_required
 def moderator():
-    nomad = get_nomad()
     # FIXME add in values for current user
-    if (nomad and nomad.moderator) or users.is_current_user_admin():
+    if current_user.is_active:
         q = Nomad.query(Nomad.moderator == True)
         nomads = q.fetch(100)
 
         template_values = {
             'moderators': nomads,
-            'is_admin': users.is_current_user_admin(),
+            'is_admin': current_user.is_active,
         }
 
         return render_template('moderator.html', **template_values)
@@ -389,23 +452,8 @@ def moderator():
         return response
 
 
-@app.route('/moderatorAdd', methods=['POST'])
-def moderator_add():
-    name = request.form.get('name')
-    mail = request.form.get('mail')
-
-    nomad = Nomad()
-    nomad.name = name
-    nomad.mail = mail
-    nomad.moderator = True
-    nomad.put()
-
-    info("moderator created name = {}, mail = {}".format(name, mail))
-
-    return redirect(url_for('moderator'))
-
-
 @app.route('/publishMail', methods=['GET'])
+@login_required
 def publish_mail():
     current_query = Appointment.query(ancestor=appointments_key()).\
         filter(Appointment.setdate != None).\
@@ -414,8 +462,8 @@ def publish_mail():
     current_list = current_query.fetch(4)
 
     msg = NewsEmail()
-    for app in current_list:
-        msg.add_pub(app)
+    for appo in current_list:
+        msg.add_pub(appo)
 
     msg.send()
 
@@ -437,14 +485,14 @@ def poster():
 @app.route('/calendar', methods=['GET'])
 def calendar():
     appid = request.args.get('id')
-    app = ndb.Key(urlsafe=appid).get()
+    appo = ndb.Key(urlsafe=appid).get()
 
-    if app:
+    if appo:
         c = Calendar()
         e = Event()
 
-        e.name = "Nomaden im {}, {} ({})".format(app.name, app.street, app.publictrans)
-        e.begin = datetime.datetime.combine(app.setdate, datetime.time(19))
+        e.name = "Nomaden im {}, {} ({})".format(appo.name, appo.street, appo.publictrans)
+        e.begin = datetime.datetime.combine(appo.setdate, datetime.time(19))
 
         c.events.append(e)
 
@@ -455,6 +503,7 @@ def calendar():
 
 # woechentlicher cronjob
 @app.route('/schedulePubs', methods=['GET'])
+@login_required
 def schedule_pubs():
     # wir haben drei gruppen
 
@@ -465,14 +514,14 @@ def schedule_pubs():
 
     archive_list = archive_query.fetch()
 
-    for app in archive_list:
-        newapp = clone_entity(app, parent=apparchive_key())
+    for appo in archive_list:
+        newapp = clone_entity(appo, parent=apparchive_key())
         for com in newapp.comments:
             com.source = None
         newapp.source = None
         newapp.put()
 
-        app.key.delete()
+        appo.key.delete()
 
     # die aktuellen, also schon geplanten
     current_query = Appointment.query(ancestor=appointments_key()).\
@@ -490,9 +539,9 @@ def schedule_pubs():
         fill_dates[last_date] = 1
         info("scheduling {}".format(last_date))
 
-    for app in current_list:
-        if app.setdate in fill_dates:
-            del fill_dates[app.setdate]
+    for appo in current_list:
+        if appo.setdate in fill_dates:
+            del fill_dates[appo.setdate]
 
     # die einzufuegenden, die wir aus der warteliste ziehen
 
@@ -505,8 +554,10 @@ def schedule_pubs():
 
         for dat in klis:
             if len(next_list) > 0:
-                app = next_list[0]
-                app.setdate = dat
-                app.put()
+                appo = next_list[0]
+                appo.setdate = dat
+                appo.put()
 
                 next_list = next_query.fetch(1)
+
+    return redirect(url_for('main_page'))
