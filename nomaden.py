@@ -543,10 +543,11 @@ def schedule_pubs():
 
     # die einzufuegenden, die wir aus der warteliste ziehen
 
-    klis = sorted(fill_dates.keys(), reverse=True)
+    klis = sorted(fill_dates.keys())
     if len(klis) > 0:
         next_query = Appointment.query(ancestor=appointments_key()).\
-            filter(Appointment.setdate == None)
+            filter(Appointment.setdate == None).\
+            order(Appointment.sortorder)
 
         next_list = next_query.fetch(1)
 
