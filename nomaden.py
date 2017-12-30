@@ -47,6 +47,13 @@ def bitbucket_key(bucket_name=BIT_BUCKET_NAME):
     return ndb.Key('Appointment', bucket_name)
 
 
+def clone_entity(e, **extra_args):
+    klass = e.__class__
+    props = dict((v._code_name, v.__get__(e, klass)) for v in klass._properties.itervalues() if type(v) is not ndb.ComputedProperty)
+    props.update(extra_args)
+    return klass(**props)
+
+
 class Comment(ndb.Model):
     uname = ndb.StringProperty()
     text = ndb.StringProperty()
@@ -88,13 +95,14 @@ class Appointment(ndb.Model):
 
         return archive_query.fetch()
 
+    def archive(self):
+        newapp = clone_entity(self, parent=apparchive_key())
+        for com in newapp.comments:
+            com.source = None
+        newapp.source = None
+        newapp.put()
 
-
-def clone_entity(e, **extra_args):
-    klass = e.__class__
-    props = dict((v._code_name, v.__get__(e, klass)) for v in klass._properties.itervalues() if type(v) is not ndb.ComputedProperty)
-    props.update(extra_args)
-    return klass(**props)
+        self.key.delete()
 
 
 # utility & templates
@@ -512,23 +520,17 @@ def schedule_pubs():
     # wir haben drei gruppen
 
     # die fertig geplanten, feststehenden termine
-    archive_query = Appointment.query(ancestor=appointments_key()).\
-        filter(Appointment.setdate < datetime.date.today(),
-               Appointment.setdate != None)
+    current_list = Appointment.get_current()
 
-    archive_list = archive_query.fetch()
+    archive_list = [ap for ap in current_list
+                    if ap.setdate < datetime.date.today()]
 
     for appo in archive_list:
-        newapp = clone_entity(appo, parent=apparchive_key())
-        for com in newapp.comments:
-            com.source = None
-        newapp.source = None
-        newapp.put()
-
-        appo.key.delete()
+        appo.archive()
 
     # die aktuellen, also schon geplanten
-    current_list = Appointment.get_current()
+    current_list = [ap for ap in current_list
+                    if ap.setdate > datetime.date.today()]
 
     fill_dates = {}
     last_date = previous_tuesday()
@@ -546,18 +548,20 @@ def schedule_pubs():
 
     klis = sorted(fill_dates.keys())
     if len(klis) > 0:
-        next_query = Appointment.query(ancestor=appointments_key()).\
-            filter(Appointment.setdate == None).\
-            order(Appointment.sortorder)
+        waiting = Appointment.get_waiting()
 
-        next_list = next_query.fetch(1)
+        appo = None
+        if len(waiting) > 0:
+            appo = waiting.pop(0)
 
         for dat in klis:
-            if len(next_list) > 0:
-                appo = next_list[0]
+            if appo is not None:
                 appo.setdate = dat
                 appo.put()
 
-                next_list = next_query.fetch(1)
+                if len(waiting) > 0:
+                    appo = waiting.pop(0)
+                else:
+                    appo = None
 
     return redirect(url_for('main_page'))
