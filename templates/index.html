@@ -70,13 +70,13 @@
     
 	    {{ app.street }}, {{ app.city }}<br>
 	    <a target="_blank" rel="noopener" href="https://maps.google.com/maps?f=q&hl=en&q={{ app.street }},+Hamburg,+Germany">Google Maps</a> (<a taget="_blank" rel="noopener" href="https://www.geofox.de/jsf/home.seam?INPUTSTARTTYP=H&INPUTSTARTTEXT1=Informatikum&INPUTSTARTTEXT2=Hamburg&INPUTUHRZEIT=19:00&INPUTABODERAN=2&INPUTZIELTYP=A&INPUTZIELTEXT2={{ app.city }}&INPUTDATUM=23.08.2016&INPUTZIELTEXT1={{ app.publictrans }}">{{ app.publictrans }}</a>)
-	    <a href="/calendar?id={{ app.key.urlsafe() }}">iCal</a>
+	    <a href="/calendar?id={{ app.get_id() }}">iCal</a>
 
 	  </p>
 	  
 	  {% if moderator is defined %}
 	  <p>
-	    <a href="/delete?id={{ app.key.urlsafe() }}">L&ouml;schen</a>
+	    <a href="/delete?id={{ app.get_id() }}">L&ouml;schen</a>
 	  </p>
 	  {% endif %}
 	    
@@ -95,7 +95,7 @@
 	    <div class="comment-form">
 	  
 	      <form action="/comment" method="post">
-		<input type="hidden" name="id" value="{{ app.key.urlsafe() }}">
+		<input type="hidden" name="id" value="{{ app.get_id() }}">
 	    
 		<div class="three columns">
 		  <label for="author">Autor</label>
@@ -146,7 +146,7 @@
 	    <a href="/move?id={{ app.sortorder }}">Fr&uuml;er</a>
 	    <a href="/move?id={{ app.sortorder }}&direction=backward">Sp&auml;ter</a>
 	    {% if moderator is defined %}
-	    <a href="/delete?id={{ app.key.urlsafe() }}">L&ouml;schen</a>
+	    <a href="/delete?id={{ app.get_id() }}">L&ouml;schen</a>
 	    {% endif %}
 	  </p>
 
@@ -173,7 +173,7 @@
 	<a class="comment-indicator" >Kommentar schreiben</a>
 	<div class="comment-form">
 	<form action="/comment" method="post">
-	  <input type="hidden" name="id" value="{{ app.key.urlsafe() }}">
+	  <input type="hidden" name="id" value="{{ app.get_id() }}">
 	  <div class="three columns">
 
 

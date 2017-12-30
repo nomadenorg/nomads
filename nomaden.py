@@ -72,6 +72,9 @@ class Appointment(ndb.Model):
     comments = ndb.LocalStructuredProperty(Comment, repeated=True)
     removed = ndb.StringProperty()
 
+    def get_id(self):
+        return self.key.urlsafe()
+
     @classmethod
     def by_id(cls, appid):
         return ndb.Key(urlsafe=appid).get()
