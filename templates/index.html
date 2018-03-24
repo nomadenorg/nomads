@@ -144,9 +144,9 @@
 	    <b>{{ app.name }}</b><br>
 	    {{ app.street }}, {{ app.city }}<br> ({{ app.publictrans }})<br>
 	    {% if app.sortorder > 1 %}
-	    <a href="/move?id={{ app.sortorder }}">Fr&uuml;er</a>
+	    <a href="/move?id={{ app.get_id() }}">Fr&uuml;er</a>
 	    {% endif %}
-	    <a href="/move?id={{ app.sortorder }}&direction=backward">Sp&auml;ter</a>
+	    <a href="/move?id={{ app.get_id() }}&direction=backward">Sp&auml;ter</a>
 	    {% if moderator is defined %}
 	    <a href="/delete?id={{ app.get_id() }}">L&ouml;schen</a>
 	    {% endif %}
@@ -223,7 +223,7 @@
 	</div>
 
 	<div class="twelve columns">
-	  Copyright &copy; 2016-2017 - Die Nomaden | <a href="assets/impressum.html">Impressum</a>
+	  Copyright &copy; 2016-2018 - Die Nomaden | <a href="assets/impressum.html">Impressum</a>
 	</div>
 	
 	<div class="twelve columns">

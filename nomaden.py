@@ -117,6 +117,52 @@ class Appointment(ndb.Model):
 
         self.key.delete()
 
+    def move_forward(self):
+        sortid = self.sortorder
+        applis = []
+        query = Appointment.query(ancestor=appointments_key()).\
+                                            filter(Appointment.setdate == None,
+                                                   Appointment.sortorder >= sortid - 1,
+                                                   Appointment.sortorder <= sortid).\
+                                                   order(Appointment.sortorder)
+        applis = query.fetch(2)
+
+        if len(applis) > 1:
+            app_a = applis[0]
+            app_b = applis[1]
+
+            tmp = app_a.sortorder
+            app_a.sortorder = app_b.sortorder
+            app_b.sortorder = tmp
+
+            app_a.put()
+            app_b.put()
+
+            info('pub moved direction=forward id={}'.format(sortid))
+
+    def move_backward(self):
+        sortid = self.sortorder
+        applis = []
+        query = Appointment.query(ancestor=appointments_key()).\
+                                            filter(Appointment.setdate == None,
+                                                   Appointment.sortorder >= sortid,
+                                                   Appointment.sortorder <= sortid + 1).\
+                                                   order(-Appointment.sortorder)
+        applis = query.fetch(2)
+
+        if len(applis) > 1:
+            app_a = applis[0]
+            app_b = applis[1]
+
+            tmp = app_a.sortorder
+            app_a.sortorder = app_b.sortorder
+            app_b.sortorder = tmp
+
+            app_a.put()
+            app_b.put()
+
+            info('pub moved direction=forward id={}'.format(sortid))
+
 
 # utility & templates
 
@@ -409,40 +455,18 @@ def comment():
 
 @app.route('/move', methods=['GET'])
 def move_pub():
-    sortid = int(request.args['id'])
+    appid = request.args['id']
 
+    app = Appointment.by_id(appid)
+    
     direction = 'forward'
     if 'direction' in request.args:
         direction = request.args['direction']
 
-    applis = []
     if direction == "forward":
-        query = Appointment.query(ancestor=appointments_key()).\
-            filter(Appointment.setdate == None,
-                   Appointment.sortorder >= sortid - 1,
-                   Appointment.sortorder <= sortid).\
-            order(Appointment.sortorder)
-        applis = query.fetch(2)
+        app.move_forward()
     else:
-        query = Appointment.query(ancestor=appointments_key()).\
-            filter(Appointment.setdate == None,
-                   Appointment.sortorder >= sortid,
-                   Appointment.sortorder <= sortid + 1).\
-            order(-Appointment.sortorder)
-        applis = query.fetch(2)
-
-    if len(applis) > 1:
-        app_a = applis[0]
-        app_b = applis[1]
-
-        tmp = app_a.sortorder
-        app_a.sortorder = app_b.sortorder
-        app_b.sortorder = tmp
-
-        app_a.put()
-        app_b.put()
-
-        info('pub moved direction={} id={}'.format(direction, sortid))
+        app.move_backward()
 
     return redirect(url_for('main_page'))
 
