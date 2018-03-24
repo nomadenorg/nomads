@@ -107,6 +107,23 @@ class Appointment(ndb.Model):
 
         return archive_query.fetch()
 
+    @classmethod
+    def enter_pub():
+        appo = Appointment(parent=appointments_key())
+        query = Appointment.query(ancestor=appointments_key()).\
+            filter(Appointment.setdate == None).\
+            order(-Appointment.sortorder)
+
+        sorder = 1
+
+        applis = query.fetch(1)
+        if len(applis) > 0:
+            prev_app = applis[0]
+            sorder = prev_app.sortorder + 1
+
+        appo.sortorder = sorder
+        return appo
+
     # archive this appointment
     def archive(self):
         newapp = clone_entity(self, parent=apparchive_key())
@@ -403,7 +420,7 @@ def archive():
 
 @app.route('/enterPub', methods=['POST'])
 def enter_pub():
-    appo = Appointment(parent=appointments_key())
+    appo = Appointment.enter_pub()
 
     appo.name = request.form['name']
     appo.street = request.form['street']
@@ -413,19 +430,6 @@ def enter_pub():
     appo.source = generate_source(request)
 
     if request.form['magic'] == '4':
-        query = Appointment.query(ancestor=appointments_key()).\
-            filter(Appointment.setdate == None).\
-            order(-Appointment.sortorder)
-
-        sorder = 1
-
-        applis = query.fetch(1)
-        if len(applis) > 0:
-            prev_app = applis[0]
-            sorder = prev_app.sortorder + 1
-
-        appo.sortorder = sorder
-
         appo.put()
 
         info("pub entered")
