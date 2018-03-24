@@ -117,6 +117,13 @@ class Appointment(ndb.Model):
 
         self.key.delete()
 
+    def delete(self):
+        newapp = clone_entity(self, parent=bitbucket_key())
+        newapp.removed = generate_source(request)
+        newapp.put()
+        appo.key.delete()
+        info("pub deleted key={}".format(appid))
+
     def move_forward(self):
         sortid = self.sortorder
         applis = []
@@ -433,9 +440,7 @@ def comment():
     text = request.form['text']
     magic = request.form['magic']
 
-    key = ndb.Key(urlsafe=appid)
-
-    appo = key.get()
+    appo = Appointment.by_id(appid)
 
     if appo and magic == "4":
         com = Comment()
@@ -479,11 +484,7 @@ def delete():
         appo = Appointment.by_id(appid)
 
         if appo:
-            newapp = clone_entity(appo, parent=bitbucket_key())
-            newapp.removed = generate_source(request)
-            newapp.put()
-            appo.key.delete()
-            info("pub deleted key={}".format(appid))
+            appo.delete()
 
     return redirect(url_for('main_page'))
 
