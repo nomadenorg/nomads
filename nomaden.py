@@ -17,6 +17,7 @@ import datetime
 import dateutil.parser
 import re
 import os.path
+import fcntl
 from uuid import uuid4 as uuid
 
 from ics import Calendar, Event
@@ -39,14 +40,16 @@ class StorageHelper():
     def __init__(self):
         self.schedule = PBAppointmentList()
         if os.path.isfile("schedule.pb"):
-            f = open("schedule.pb", "rb")
-            self.schedule.ParseFromString(f.read())
+            with open("schedule.pb", "rb") as f:
+                fcntl.lockf(f, fcntl.LOCK_SH)
+                self.schedule.ParseFromString(f.read())
             f.close()
 
         self.archive = PBAppointmentList()
         if os.path.isfile("archive.pb"):
-            f = open("archive.pb", "rb")
-            self.archive.ParseFromString(f.read())
+            with open("archive.pb", "rb") as f:
+                fcntl.lockf(f, fcntl.LOCK_SH)
+                self.archive.ParseFromString(f.read())
             f.close()
 
     def get_scheduled(self):
@@ -56,12 +59,14 @@ class StorageHelper():
         return self.archive
 
     def save(self):
-        f = open("schedule.pb", "wb")
-        f.write(self.schedule.SerializeToString())
+        with open("schedule.pb", "wb") as f:
+            fcntl.lockf(f, fcntl.LOCK_EX)
+            f.write(self.schedule.SerializeToString())
         f.close()
 
-        f = open("archive.pb", "wb")
-        f.write(self.archive.SerializeToString())
+        with open("archive.pb", "wb") as f:
+            fcntl.lockf(f, fcntl.LOCK_EX)
+            f.write(self.archive.SerializeToString())
         f.close()
 
 
@@ -87,13 +92,13 @@ class Appointment():
         self.source = self.pbapp.source
 
         if self.pbapp.entered != '':
-            self.entered = dateutil.parser.parse(self.pbapp.entered)
+            self.entered = dateutil.parser.parse(self.pbapp.entered).date()
 
         if self.pbapp.setdate != '':
-            self.setdate = dateutil.parser.parse(self.pbapp.setdate)
+            self.setdate = dateutil.parser.parse(self.pbapp.setdate).date()
 
         if self.pbapp.removed != '':
-            self.removed = dateutil.parser.parse(self.pbapp.removed)
+            self.removed = dateutil.parser.parse(self.pbapp.removed).date()
 
         self.comments = self.pbapp.comments
 
