@@ -167,7 +167,9 @@ class Appointment():
         archi = storage_helper.get_archived()
 
         sched.apps.remove(self)
-        archi.apps.extend([PBAppointment().CopyFrom(self.pbapp)])
+        pbapp = PBAppointment()
+        pbapp.CopyFrom(self.pbapp)
+        archi.apps.extend([pbapp])
 
         self.put()
 
