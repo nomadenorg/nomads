@@ -166,12 +166,13 @@ class Appointment():
         sched = storage_helper.get_scheduled()
         archi = storage_helper.get_archived()
 
-        sched.apps.remove(self)
-        pbapp = PBAppointment()
-        pbapp.CopyFrom(self.pbapp)
-        archi.apps.extend([pbapp])
+        if self.pbapp in sched.apps:
+            sched.apps.remove(self.pbapp)
+            pbapp = PBAppointment()
+            pbapp.CopyFrom(self.pbapp)
+            archi.apps.extend([pbapp])
 
-        self.put()
+            storage_helper.save()
 
     def delete(self):
         sched = storage_helper.get_scheduled()
