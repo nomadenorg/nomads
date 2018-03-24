@@ -108,7 +108,7 @@ class Appointment(ndb.Model):
         return archive_query.fetch()
 
     @classmethod
-    def enter_pub():
+    def append_pub(cls):
         appo = Appointment(parent=appointments_key())
         query = Appointment.query(ancestor=appointments_key()).\
             filter(Appointment.setdate == None).\
@@ -420,7 +420,7 @@ def archive():
 
 @app.route('/enterPub', methods=['POST'])
 def enter_pub():
-    appo = Appointment.enter_pub()
+    appo = Appointment.append_pub()
 
     appo.name = request.form['name']
     appo.street = request.form['street']
@@ -491,25 +491,6 @@ def delete():
             appo.delete()
 
     return redirect(url_for('main_page'))
-
-
-@app.route('/moderator', methods=['GET'])
-@login_required
-def moderator():
-    # FIXME add in values for current user
-    if current_user.is_active:
-        q = Nomad.query(Nomad.moderator == True)
-        nomads = q.fetch(100)
-
-        template_values = {
-            'moderators': nomads,
-            'is_admin': current_user.is_active,
-        }
-
-        return render_template('moderator.html', **template_values)
-    else:
-        response = make_response(render_template('unauthorized.html'), 403)
-        return response
 
 
 @app.route('/publishMail', methods=['GET'])
