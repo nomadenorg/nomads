@@ -1,6 +1,5 @@
-from google.appengine.ext import ndb
-
-from logging import info
+import logging
+from logging.handlers import RotatingFileHandler
 
 from flask import Flask, render_template, request, redirect, url_for,\
     make_response
@@ -15,177 +14,199 @@ from smtplib import SMTP
 from email.mime.text import MIMEText
 
 import datetime
+import dateutil.parser
 import re
+import os.path
+from uuid import uuid4 as uuid
 
 from ics import Calendar, Event
+from nomads_pb2 import AppoinmentList as PBAppointmentList,\
+    Appointment as PBAppointment
+
 
 # flask app & login manager
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='assets', static_url_path='/assets')
 login_manager = LoginManager()
 login_manager.init_app(app)
 app.secret_key = 'This is just a Testing scenario'
 
 # model layer
 
-DEFAULT_BUCKET_NAME = 'current_appointments'
-ARCHIVE_BUCKET_NAME = 'archive_appointments'
-BIT_BUCKET_NAME = 'delete_appointments'
+
+class StorageHelper():
+
+    def __init__(self):
+        self.schedule = PBAppointmentList()
+        if os.path.isfile("schedule.pb"):
+            f = open("schedule.pb", "rb")
+            self.schedule.ParseFromString(f.read())
+            f.close()
+
+        self.archive = PBAppointmentList()
+        if os.path.isfile("archive.pb"):
+            f = open("archive.pb", "rb")
+            self.archive.ParseFromString(f.read())
+            f.close()
+
+    def get_scheduled(self):
+        return self.schedule
+
+    def get_archived(self):
+        return self.archive
+
+    def save(self):
+        f = open("schedule.pb", "wb")
+        f.write(self.schedule.SerializeToString())
+        f.close()
+
+        f = open("archive.pb", "wb")
+        f.write(self.archive.SerializeToString())
+        f.close()
 
 
-# all entities under this root form the current list
-def appointments_key(bucket_name=DEFAULT_BUCKET_NAME):
-    return ndb.Key('Appointment', bucket_name)
+
+storage_helper = StorageHelper()
 
 
-# all entitties under this root form the archive
-def apparchive_key(bucket_name=ARCHIVE_BUCKET_NAME):
-    return ndb.Key('Appointment', bucket_name)
+class Appointment():
 
+    entered = None
+    setdate = None
+    removed = None
 
-def bitbucket_key(bucket_name=BIT_BUCKET_NAME):
-    return ndb.Key('Appointment', bucket_name)
+    def __init__(self, pbapp, sortorder):
+        self.sortorder = sortorder
+        self.pbapp = pbapp
 
+        self.id = self.pbapp.id
+        self.name = self.pbapp.name
+        self.street = self.pbapp.street
+        self.city = self.pbapp.city
+        self.publictrans = self.pbapp.publictrans
+        self.source = self.pbapp.source
 
-def clone_entity(e, **extra_args):
-    klass = e.__class__
-    props = dict((v._code_name, v.__get__(e, klass)) for v in klass._properties.itervalues() if type(v) is not ndb.ComputedProperty)
-    props.update(extra_args)
-    return klass(**props)
+        if self.pbapp.entered != '':
+            self.entered = dateutil.parser.parse(self.pbapp.entered)
 
+        if self.pbapp.setdate != '':
+            self.setdate = dateutil.parser.parse(self.pbapp.setdate)
 
-class Comment(ndb.Model):
-    uname = ndb.StringProperty()
-    text = ndb.StringProperty()
-    source = ndb.StringProperty()
+        if self.pbapp.removed != '':
+            self.removed = dateutil.parser.parse(self.pbapp.removed)
 
-
-class Appointment(ndb.Model):
-    name = ndb.StringProperty(indexed=False)
-    street = ndb.StringProperty(indexed=False)
-    city = ndb.StringProperty(indexed=False)
-    publictrans = ndb.StringProperty(indexed=False)
-    source = ndb.StringProperty(indexed=False)
-    entered = ndb.DateTimeProperty(auto_now_add=True)
-    setdate = ndb.DateProperty()
-    sortorder = ndb.IntegerProperty()
-    comments = ndb.LocalStructuredProperty(Comment, repeated=True)
-    removed = ndb.StringProperty()
+        self.comments = self.pbapp.comments
 
     # return a url safe id
     def get_id(self):
-        return self.key.urlsafe()
+        return self.pbapp.id
+
+    def put(self):
+        self.pbapp.name = self.name
+        self.pbapp.street = self.street
+        self.pbapp.city = self.city
+        self.pbapp.publictrans = self.publictrans
+        self.pbapp.source = self.source
+
+        if self.entered:
+            self.pbapp.entered = self.entered.isoformat()
+        if self.setdate:
+            self.pbapp.setdate = self.setdate.isoformat()
+        if self.removed:
+            self.pbapp.removed = self.removed.isoformat()
+
+        self.pbapp.id = self.id
+
+        app.logger.info('putting {}'.format(self.pbapp))
+        storage_helper.save()
 
     # fetch an appointment by a url safe id
     @classmethod
     def by_id(cls, appid):
-        return ndb.Key(urlsafe=appid).get()
+        pbapps = storage_helper.get_scheduled()
+        for pbapp in pbapps.apps:
+            if pbapp.id == appid:
+                return Appointment(pbapp, 0)
 
     # get currently scheduled pubs
     @classmethod
     def get_current(cls):
-        current_query = Appointment.query(ancestor=appointments_key()).\
-            filter(Appointment.setdate != None).\
-            order(Appointment.setdate)
-
-        return current_query.fetch()
+        return [Appointment(x, idx+1) for idx, x in enumerate(storage_helper.get_scheduled().apps)
+                if x.setdate != '']
 
     # get waiting list
     @classmethod
     def get_waiting(cls):
-        wait_query = Appointment.query(ancestor=appointments_key()).\
-            filter(Appointment.setdate == None).\
-            order(Appointment.sortorder)
-
-        return wait_query.fetch()
+        return [Appointment(x, idx+1) for idx, x in enumerate(storage_helper.get_scheduled().apps)
+                if x.setdate == '']
 
     # get archived appointments
     @classmethod
     def get_archive(cls):
-        archive_query = Appointment.query(ancestor=apparchive_key()).\
-            order(Appointment.setdate)
-
-        return archive_query.fetch()
+        return storage_helper.get_archived().apps
 
     @classmethod
     def append_pub(cls):
-        appo = Appointment(parent=appointments_key())
-        query = Appointment.query(ancestor=appointments_key()).\
-            filter(Appointment.setdate == None).\
-            order(-Appointment.sortorder)
+        sched = storage_helper.get_scheduled()
 
-        sorder = 1
+        pbapp = PBAppointment()
 
-        applis = query.fetch(1)
-        if len(applis) > 0:
-            prev_app = applis[0]
-            sorder = prev_app.sortorder + 1
+        pbapp.id = str(uuid())
+        sched.apps.extend([pbapp])
 
-        appo.sortorder = sorder
-        return appo
+        return Appointment(sched.apps[-1], len(sched.apps))
 
     # archive this appointment
     def archive(self):
-        newapp = clone_entity(self, parent=apparchive_key())
-        for com in newapp.comments:
-            com.source = None
-        newapp.source = None
-        newapp.put()
+        sched = storage_helper.get_scheduled()
+        archi = storage_helper.get_archived()
 
-        self.key.delete()
+        sched.apps.remove(self)
+        archi.apps.extend([PBAppointment().CopyFrom(self.pbapp)])
+
+        self.put()
 
     def delete(self):
-        newapp = clone_entity(self, parent=bitbucket_key())
-        newapp.removed = generate_source(request)
-        newapp.put()
-        appo.key.delete()
-        info("pub deleted key={}".format(appid))
+        sched = storage_helper.get_scheduled()
+        sched.apps.remove(self.pbapp)
+        app.logger.info("pub deleted key={}".format(self.id))
 
     def move_forward(self):
-        sortid = self.sortorder
-        applis = []
-        query = Appointment.query(ancestor=appointments_key()).\
-                                            filter(Appointment.setdate == None,
-                                                   Appointment.sortorder >= sortid - 1,
-                                                   Appointment.sortorder <= sortid).\
-                                                   order(Appointment.sortorder)
-        applis = query.fetch(2)
+        sched = storage_helper.get_scheduled()
+        index = 0
+        for idx, item in enumerate(sched.apps):
+            if item.id == self.id:
+                index = idx
+                break
 
-        if len(applis) > 1:
-            app_a = applis[0]
-            app_b = applis[1]
+        if index > 0:
+            tmp = PBAppointment()
+            tmp.CopyFrom(sched.apps[index-1])
+            sched.apps[index-1].CopyFrom(self.pbapp)
+            sched.apps[index].CopyFrom(tmp)
 
-            tmp = app_a.sortorder
-            app_a.sortorder = app_b.sortorder
-            app_b.sortorder = tmp
+            app.logger.info('pub moved direction=forward id={}'.format(self.id))
 
-            app_a.put()
-            app_b.put()
-
-            info('pub moved direction=forward id={}'.format(sortid))
+            storage_helper.save()
 
     def move_backward(self):
-        sortid = self.sortorder
-        applis = []
-        query = Appointment.query(ancestor=appointments_key()).\
-                                            filter(Appointment.setdate == None,
-                                                   Appointment.sortorder >= sortid,
-                                                   Appointment.sortorder <= sortid + 1).\
-                                                   order(-Appointment.sortorder)
-        applis = query.fetch(2)
+        sched = storage_helper.get_scheduled()
+        index = 0
+        for idx, item in enumerate(sched.apps):
+            if item.id == self.id:
+                index = idx
+                break
 
-        if len(applis) > 1:
-            app_a = applis[0]
-            app_b = applis[1]
+        if index + 1 < len(sched.apps):
+            app.logger.info("exchanging {} for {}".format(sched.apps[index], sched.apps[index+1]))
+            tmp = PBAppointment()
+            tmp.CopyFrom(sched.apps[index+1])
+            sched.apps[index+1].CopyFrom(sched.apps[index])
+            sched.apps[index].CopyFrom(tmp)
 
-            tmp = app_a.sortorder
-            app_a.sortorder = app_b.sortorder
-            app_b.sortorder = tmp
+            app.logger.info('pub moved direction=backward id={}'.format(self.id))
 
-            app_a.put()
-            app_b.put()
-
-            info('pub moved direction=forward id={}'.format(sortid))
+            storage_helper.save()
 
 
 # utility & templates
@@ -432,7 +453,9 @@ def enter_pub():
     if request.form['magic'] == '4':
         appo.put()
 
-        info("pub entered")
+        app.logger.info("pub entered")
+    else:
+        app.logger.info("/enterPub wrong magic")
 
     return redirect(url_for('main_page'))
 
@@ -447,17 +470,17 @@ def comment():
     appo = Appointment.by_id(appid)
 
     if appo and magic == "4":
-        com = Comment()
+        com = PBAppointment.Comment()
         com.uname = uname
         com.text = text
 
         com.source = generate_source(request)
 
-        appo.comments.append(com)
+        appo.comments.extend([com])
 
         appo.put()
 
-        info('comment entered on pub id={}'.format(appid))
+        app.logger.info('comment entered on pub id={}'.format(appid))
 
     return redirect(url_for('main_page'))
 
@@ -561,7 +584,7 @@ def schedule_pubs():
     for i in range(4):
         last_date = next_tuesday(last_date)
         fill_dates[last_date] = 1
-        info("scheduling {}".format(last_date))
+        app.logger.info("scheduling {}".format(last_date))
 
     for appo in current_list:
         if appo.setdate in fill_dates:
@@ -588,3 +611,16 @@ def schedule_pubs():
                     appo = None
 
     return redirect(url_for('main_page'))
+
+if __name__ == "__main__":
+    # initialize the log handler
+    log_handler = RotatingFileHandler('nomaden.log', maxBytes=10000, backupCount=1)
+    
+    # set the log handler level
+    log_handler.setLevel(logging.INFO)
+
+    # set the app logger level
+    app.logger.setLevel(logging.INFO)
+
+    app.logger.addHandler(log_handler)    
+    app.run()

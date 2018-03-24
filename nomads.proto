@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package nomadsapp;
+
+message Appointment {
+
+  string name = 1;
+  string street = 2;
+  string city = 3;
+  string publictrans = 4;
+  string source = 5;
+  string entered = 6;
+  string setdate = 7;
+  int32 sortorder = 8;
+  string removed = 9;
+
+  message Comment {
+    string uname = 1;
+    string text = 2;
+    string source = 3;
+  }
+
+  repeated Comment comments = 10;
+  string id = 11;
+}
+
+message AppoinmentList {
+  repeated Appointment apps = 1;
+}
