@@ -1,8 +1,0 @@
-cron:
-- description: weekly pub rotation
-  url: /schedulePubs
-  schedule: every wednesday 1:00
-
-- description: weekly pub email
-  url: /publishMail
-  schedule: every wednesday 13:00
