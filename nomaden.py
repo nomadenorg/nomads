@@ -24,13 +24,21 @@ from ics import Calendar, Event
 from nomads_pb2 import AppoinmentList as PBAppointmentList,\
     Appointment as PBAppointment
 
+import ConfigParser
+
+
+# config
+
+config = ConfigParser.ConfigParser()
+config.read('nomaden.cfg')
+
 
 # flask app & login manager
 
 app = Flask(__name__, static_folder='assets', static_url_path='/assets')
 login_manager = LoginManager()
 login_manager.init_app(app)
-app.secret_key = 'This is just a Testing scenario'
+app.secret_key = config.get("app", "secret", 0)
 
 # model layer
 
@@ -525,15 +533,17 @@ def delete():
 
 
 @app.route('/publishMail', methods=['GET'])
-@login_required
 def publish_mail():
-    current_list = Appointment.get_current()
+    if current_user.is_authenticated or\
+       request.args.get('token') == config.get('app', 'crontoken', 0):
+        current_list = Appointment.get_current()
 
-    msg = NewsEmail()
-    for appo in current_list:
-        msg.add_pub(appo)
-
-    msg.send()
+        msg = NewsEmail()
+        for appo in current_list:
+            msg.add_pub(appo)
+        msg.send()
+    else:
+        app.logger.info("unauthorized publishMail")  
 
     return redirect(url_for('main_page'))
 
@@ -589,8 +599,12 @@ def calendar():
 
 # woechentlicher cronjob
 @app.route('/schedulePubs', methods=['GET'])
-@login_required
 def schedule_pubs():
+    if not (current_user.is_authenticated or\
+       request.args.get('token') == config.get('app', 'crontoken', 0)):
+        app.logger.info("unauthorized schedulePubs")
+        return redirect(url_for('main_page'))
+
     # wir haben drei gruppen
 
     # die fertig geplanten, feststehenden termine
@@ -642,7 +656,7 @@ def schedule_pubs():
 
 if __name__ == "__main__":
     # initialize the log handler
-    log_handler = RotatingFileHandler('nomaden.log', maxBytes=10000, backupCount=1)
+    log_handler = RotatingFileHandler(config.get('app', 'logpath', 0), maxBytes=10000, backupCount=1)
     
     # set the log handler level
     log_handler.setLevel(logging.INFO)
