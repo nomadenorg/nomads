@@ -548,8 +548,8 @@ def poster():
     return render_template('poster.html', **template_values)
 
 
-@app.route('/calendar', methods=['GET'])
-def calendar():
+@app.route('/calendarEntry', methods=['GET'])
+def calendar_entry():
     appid = request.args.get('id')
     appo = Appointment.by_id(appid)
 
@@ -561,6 +561,26 @@ def calendar():
         e.begin = datetime.datetime.combine(appo.setdate, datetime.time(19))
 
         c.events.append(e)
+
+        res = make_response(str(c))
+        res.headers['Content-Type'] = 'text/calendar; charset=utf-8'
+        return res
+
+
+@app.route('/calendar', methods=['GET'])
+def calendar():
+    apps = Appointment.get_current()
+
+    if len(apps) > 0:
+        c = Calendar()
+
+        for appo in apps:
+            e = Event()
+
+            e.name = "Nomaden im {}, {} ({})".format(appo.name, appo.street, appo.publictrans)
+            e.begin = datetime.datetime.combine(appo.setdate, datetime.time(19))
+
+            c.events.append(e)
 
         res = make_response(str(c))
         res.headers['Content-Type'] = 'text/calendar; charset=utf-8'

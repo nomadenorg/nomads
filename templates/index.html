@@ -70,7 +70,7 @@
     
 	    {{ app.street }}, {{ app.city }}<br>
 	    <a target="_blank" rel="noopener" href="https://maps.google.com/maps?f=q&hl=en&q={{ app.street }},+Hamburg,+Germany">Google Maps</a> (<a taget="_blank" rel="noopener" href="https://www.geofox.de/jsf/home.seam?INPUTSTARTTYP=H&INPUTSTARTTEXT1=Informatikum&INPUTSTARTTEXT2=Hamburg&INPUTUHRZEIT=19:00&INPUTABODERAN=2&INPUTZIELTYP=A&INPUTZIELTEXT2={{ app.city }}&INPUTDATUM=23.08.2016&INPUTZIELTEXT1={{ app.publictrans }}">{{ app.publictrans }}</a>)
-	    <a href="/calendar?id={{ app.get_id() }}">iCal</a>
+	    <a href="/calendarEntry?id={{ app.get_id() }}">iCal</a>
 
 	  </p>
 	  
@@ -211,6 +211,7 @@
 	  
 	  <hr>
 
+	  <a href="/calendar">Aktuelle Termine (ICS)</a>
 	  <a href="/archive">Alte Termine</a>
 	  <a href="/assets/enterpub.html">Neue Kneipe</a>
     
