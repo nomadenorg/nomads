@@ -4,3 +4,4 @@ ec2-34-243-40-137.eu-west-1.compute.amazonaws.com
 [webservers:vars]
 ansible_ssh_user=ubuntu
 app_name=nomaden-termine
+service_user=nomaden
