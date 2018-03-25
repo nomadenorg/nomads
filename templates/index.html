@@ -113,7 +113,11 @@
 
 		<div class="three columns">
 		  <label for="magic">Beine?</label>
+		  {% if current_user.is_active %}
+		  <input type="text" name="magic" value="4">
+		  {% else %}
 		  <input type="text" name="magic">
+		  {% endif %}
 		</div>
 
 		<div class="twelve columns">
