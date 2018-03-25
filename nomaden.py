@@ -651,12 +651,12 @@ def schedule_pubs():
         for dat in klis:
             if appo is not None:
                 appo.setdate = dat
-                appo.put()
 
                 if len(waiting) > 0:
                     appo = waiting.pop(0)
                 else:
                     appo = None
+        storage_helper.save()
 
     return redirect(url_for('main_page'))
 
