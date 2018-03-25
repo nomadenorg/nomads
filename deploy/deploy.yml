@@ -31,6 +31,7 @@
       repo: 'https://github.com/nomadenorg/nomads.git'
       dest: /home/{{ ansible_ssh_user }}/{{ app_name }}
       update: yes  # Does a git pull if the repo already exists
+      force: yes
   - name: install modules in a virtualenv
     pip:
       requirements: /home/{{ ansible_ssh_user }}/{{ app_name }}/requirements.txt
@@ -40,6 +41,37 @@
     copy:
       src: ../users.txt
       dest: /home/{{ ansible_ssh_user }}/{{ app_name }}/users.txt
+
+- hosts: webservers
+  tasks:
+  - name: generate app secret
+    command: openssl rand -base64 32
+    register: appsecret
+
+  - name: generate cron token
+    command: openssl rand -base64 32
+    register: crontoken
+
+  - name: configure app
+    template:
+      src: nomaden.cfg
+      dest: /home/{{ ansible_ssh_user }}/{{ app_name }}/nomaden.cfg
+  - name: create scheduler cronjob
+    cron:
+      name: schedule pubs
+      weekday: 3
+      minute: 0
+      hour: 12
+      user: "{{ ansible_ssh_user }}"
+      job: "curl -k http://localhost/schedulePubs?token={{ crontoken.stdout }}"
+  - name: create email cronjob
+    cron:
+      name: send emails
+      weekday: 1
+      minute: 0
+      hour: 12
+      user: "{{ ansible_ssh_user }}"
+      job: "curl -k http://localhost/publishMail?token={{ crontoken.stdout }}"
 
 # Configure app systemd service and nginx
 - hosts: webservers
