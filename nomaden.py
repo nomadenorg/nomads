@@ -120,7 +120,7 @@ class Appointment():
     def get_id(self):
         return self.pbapp.id
 
-    def put(self):
+    def put(self, save=True):
         self.pbapp.name = self.name
         self.pbapp.street = self.street
         self.pbapp.city = self.city
@@ -137,7 +137,8 @@ class Appointment():
         self.pbapp.id = self.id
 
         app.logger.info('putting {}'.format(self.pbapp))
-        storage_helper.save()
+        if save:
+            storage_helper.save()
 
     # fetch an appointment by a url safe id
     @classmethod
@@ -651,6 +652,7 @@ def schedule_pubs():
         for dat in klis:
             if appo is not None:
                 appo.setdate = dat
+                appo.put(save=False)
 
                 if len(waiting) > 0:
                     appo = waiting.pop(0)
