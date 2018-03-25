@@ -99,7 +99,11 @@
 	    
 		<div class="three columns">
 		  <label for="author">Autor</label>
+		  {% if current_user.is_active %}
+		  <input type="text" name="author" value="{{ current_user.username }}">
+		  {% else %}
 		  <input type="text" name="author">
+		  {% endif %}
 		</div>
 	    
 		<div class="three columns">
