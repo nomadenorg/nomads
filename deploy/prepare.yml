@@ -1,0 +1,25 @@
+# Ansible playbook for preparing a hetzner cloud server
+
+---
+
+- hosts: webservers
+  gather_facts: False
+  tasks:
+  - name: install python 2
+    raw: test -e /usr/bin/python || (sudo apt -y update && sudo apt install -y python-minimal)
+  - name: install additional python
+    raw: sudo apt install -y python-pkg-resources
+
+  - name: Set authorized key took from file
+    authorized_key:
+      user: root
+      state: present
+      key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+  - name: configure sshd_config
+    copy:
+      src: sshd_config.j2
+      dest: /etc/ssh/sshd_config
+
+  - name: restart ssh
+    systemd: name=sshd.service state=restarted enabled=yes

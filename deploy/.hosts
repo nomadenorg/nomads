@@ -1,7 +1,7 @@
 [webservers]
-ec2-34-243-40-137.eu-west-1.compute.amazonaws.com
+94.130.183.76
 
 [webservers:vars]
-ansible_ssh_user=ubuntu
+ansible_ssh_user=root
 app_name=nomaden-termine
 service_user=nomaden
