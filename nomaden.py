@@ -46,24 +46,24 @@ app.secret_key = config.get("app", "secret", 0)
 class StorageHelper():
 
     def __init__(self):
+        pass
+
+    def get_scheduled(self):
         self.schedule = PBAppointmentList()
         if os.path.isfile("schedule.pb"):
             with open("schedule.pb", "rb") as f:
                 fcntl.lockf(f, fcntl.LOCK_SH)
                 self.schedule.ParseFromString(f.read())
             f.close()
+        return self.schedule
 
+    def get_archived(self):
         self.archive = PBAppointmentList()
         if os.path.isfile("archive.pb"):
             with open("archive.pb", "rb") as f:
                 fcntl.lockf(f, fcntl.LOCK_SH)
                 self.archive.ParseFromString(f.read())
             f.close()
-
-    def get_scheduled(self):
-        return self.schedule
-
-    def get_archived(self):
         return self.archive
 
     def save(self):
@@ -76,7 +76,6 @@ class StorageHelper():
             fcntl.lockf(f, fcntl.LOCK_EX)
             f.write(self.archive.SerializeToString())
         f.close()
-
 
 
 storage_helper = StorageHelper()
