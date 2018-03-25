@@ -45,6 +45,9 @@ app.secret_key = config.get("app", "secret", 0)
 
 class StorageHelper():
 
+    archive = None
+    schedule = None
+
     def __init__(self):
         pass
 
@@ -67,15 +70,19 @@ class StorageHelper():
         return self.archive
 
     def save(self):
-        with open("schedule.pb", "wb") as f:
-            fcntl.lockf(f, fcntl.LOCK_EX)
-            f.write(self.schedule.SerializeToString())
-        f.close()
+        if self.schedule:
+            with open("schedule.pb", "wb") as f:
+                fcntl.lockf(f, fcntl.LOCK_EX)
+                f.write(self.schedule.SerializeToString())
+            f.close()
+            self.schedule = None
 
-        with open("archive.pb", "wb") as f:
-            fcntl.lockf(f, fcntl.LOCK_EX)
-            f.write(self.archive.SerializeToString())
-        f.close()
+        if self.archive:
+            with open("archive.pb", "wb") as f:
+                fcntl.lockf(f, fcntl.LOCK_EX)
+                f.write(self.archive.SerializeToString())
+            f.close()
+            self.archive = None
 
 
 storage_helper = StorageHelper()
