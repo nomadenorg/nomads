@@ -23,6 +23,7 @@
       - python-dev
       - virtualenv
       - nginx
+      - git
 
   - name: create service user
     user:

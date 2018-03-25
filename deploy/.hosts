@@ -1,5 +1,5 @@
 [webservers]
-94.130.183.76
+51.15.70.94
 
 [webservers:vars]
 ansible_ssh_user=root
