@@ -30,7 +30,7 @@
         <ul class="navbar-list">
           <li class="navbar-item"><a class="navbar-link" href="#aktuell">Die Termine</a></li>
 	  <li class="navbar-item">
-	    <a class="navbar-link" href="/assets/enterpub.html">Neue Kneipe</a>
+	    <a class="navbar-link" href="/enterPub">Neue Kneipe</a>
 	  </li>
 	  <li class="navbar-item">
 	    <a class="navbar-link" href="archive">Archiv</a>
@@ -74,7 +74,7 @@
 
 	  </p>
 	  
-	  {% if moderator is defined %}
+	  {% if current_user.is_active %}
 	  <p>
 	    <a href="/delete?id={{ app.get_id() }}">L&ouml;schen</a>
 	  </p>
@@ -155,7 +155,7 @@
 	    <a href="/move?id={{ app.get_id() }}">Fr&uuml;er</a>
 	    {% endif %}
 	    <a href="/move?id={{ app.get_id() }}&direction=backward">Sp&auml;ter</a>
-	    {% if moderator is defined %}
+	    {% if current_user.is_active %}
 	    <a href="/delete?id={{ app.get_id() }}">L&ouml;schen</a>
 	    {% endif %}
 	  </p>
@@ -221,7 +221,7 @@
 
 	  <a href="/calendar">Aktuelle Termine (ICS)</a>
 	  <a href="/archive">Alte Termine</a>
-	  <a href="/assets/enterpub.html">Neue Kneipe</a>
+	  <a href="/enterPub">Neue Kneipe</a>
     
 	  You are: <em>{{ username }}</em> <a href="{{ loginout_url }}">{{ loginout_text }}</a>
 	  

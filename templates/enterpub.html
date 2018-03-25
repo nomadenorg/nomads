@@ -27,7 +27,7 @@
         <ul class="navbar-list">
           <li class="navbar-item"><a class="navbar-link" href="/#aktuell">Die Termine</a></li>
 	  <li class="navbar-item">
-	    <a class="navbar-link" href="enterpub.html">Neue Kneipe</a>
+	    <a class="navbar-link" href="/enterPub">Neue Kneipe</a>
 	  </li>
 	  <li class="navbar-item">
 	    <a class="navbar-link" href="archive">Archiv</a>
@@ -59,7 +59,11 @@
 	  <input type="text" name="publictrans"><br>
 
 	  <label for="magic">Wieviele Beine hat ein Kamel?</label>
-	  <input type="text" name="magic"><br>
+	  {% if current_user.is_active %}
+	  <input type="text" name="magic" value="4">
+	  {% else %}
+	  <input type="text" name="magic">
+	  {% endif %}
 
 	  <input class="button-primary" type="submit" value="Eintragen">
 	</form>

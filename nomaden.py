@@ -432,18 +432,13 @@ def main_page():
         loginout_text = "Logout"
         loginout_url = url_for('logout')
 
-    moderator = 'no'
-
-    if current_user.is_active:
-        moderator = "yes"
-
     return render_template('index.html',
                            username=current_username,
                            fixed_apps=fixed_list,
                            wait_apps=wait_list,
                            loginout_url=loginout_url,
                            loginout_text=loginout_text,
-                           moderator=moderator)
+                           current_user=current_user)
 
 
 @app.errorhandler(500)
@@ -460,6 +455,11 @@ def archive():
 
     return render_template('archive.html', **template_values)
 
+@app.route('/enterPub', methods=['GET'])
+def enter_pub_display():
+    template_values = {'current_user': current_user}
+    
+    return render_template('enterpub.html', **template_values)
 
 @app.route('/enterPub', methods=['POST'])
 def enter_pub():
