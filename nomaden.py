@@ -551,7 +551,7 @@ def poster():
 @app.route('/calendar', methods=['GET'])
 def calendar():
     appid = request.args.get('id')
-    appo = ndb.Key(urlsafe=appid).get()
+    appo = Appointment.by_id(appid)
 
     if appo:
         c = Calendar()
