@@ -192,6 +192,7 @@ class Appointment():
     def delete(self):
         sched = storage_helper.get_scheduled()
         sched.apps.remove(self.pbapp)
+        storage_helper.save()
         app.logger.info("pub deleted key={}".format(self.id))
 
     def move_forward(self):
