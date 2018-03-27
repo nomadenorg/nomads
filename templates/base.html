@@ -42,6 +42,12 @@
 
     <div class="ui-app-actions">
       {% if current_user.is_active %}
+
+      {% if app.sortorder > 1 %}
+      <a href="/move?id={{ app.get_id() }}">Fr&uuml;er</a>
+      {% endif %}
+      <a href="/move?id={{ app.get_id() }}&direction=backward">Sp&auml;ter</a>
+
       <div class="ui-app-delete ui-app-action">
         <a href="/delete?id={{ app.get_id() }}">L&ouml;schen</a>
       </div>
