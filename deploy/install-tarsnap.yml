@@ -1,0 +1,29 @@
+# Ansible playbook for installing tarsnap packages
+# (Yes, we build from source, since no binaries are available.)
+
+---
+
+- hosts: webservers
+  tasks:
+  - name: import signing key
+    apt_key:
+      data: "{{ lookup('file', './tarsnap-dep-packaging-key.asc') }}"
+      state: present
+  - name: add tarsnap repo
+    shell: echo "deb http://pkg.tarsnap.com/deb/$(lsb_release -s -c) ./" | sudo tee -a /etc/apt/sources.list.d/tarsnap.list
+  - name: install packages
+    apt: name={{item}} state=installed update_cache=yes
+    with_items:
+      - tarsnap-archive-keyring
+  - name: configure tarsnap source
+    shell: echo "deb-src http://pkg.tarsnap.com/deb-src ./" | sudo tee -a /etc/apt/sources.list.d/tarsnap.list
+  - name: update cache
+    apt: name=python-software-properties state=present update_cache=yes cache_valid_time=43200
+  - name: import tarsnap cache
+    shell: gpg --no-default-keyring --keyring trustedkeys.gpg --import /usr/share/keyrings/tarsnap-archive-keyring.gpg
+  - name: get and build tarsnap
+    shell: >
+      DEBIAN_FRONTEND=noninteractive
+      sudo apt-get build-dep -y tarsnap &&
+      apt-get source -y -b tarsnap &&
+      sudo dpkg -i tarsnap_*.deb
