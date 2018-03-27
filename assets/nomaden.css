@@ -1,34 +1,105 @@
+.ui-app {
+  border-top: 1px solid #EEE;
+  padding: 20px 0;
+}
+
+.ui-app-date {
+  float:right;
+}
+
+.ui-app-name {
+  font-size: 2em;
+  color: #d85002;
+  font-variant: small-caps;
+  font-weight: bold;
+}
+
+.ui-app-links {
+  float: right;
+  text-align: right;
+}
+
+.ui-app-address {
+  margin-bottom: 20px;
+}
+
+.ui-app-comments {
+  width: 80%;
+}
+
+.ui-app-comment {
+  border: 1px solid #EEE;
+  border-width: 1px 0;
+  padding: 5px 10px;
+  margin: 5px 0;
+}
+
+.ui-app-comment-name {
+  display: inline;
+  margin-right: 10px;
+  color: #d85002;
+}
+
+.ui-app-comment-text {
+  display: inline;
+}
+
+.ui-header {
+  color: #d85002;
+}
+
+.ui-app-action {
+  cursor: pointer;
+}
+
 .container {
-  max-width: 800px; }
+  max-width: 800px;
+}
+
 .header {
   margin-top: 6rem;
-  text-align: center; }
+  text-align: center;
+}
+
 .value-prop {
   margin-top: 1rem; }
+
 .value-props {
   margin-top: 4rem;
   margin-bottom: 4rem; }
+
 .docs-header {
   text-transform: uppercase;
   font-size: 1.4rem;
   letter-spacing: .2rem;
   font-weight: 600; }
+
 .docs-section {
   border-top: 1px solid #eee;
   padding: 4rem 0;
   margin-bottom: 0;}
+
 .value-img {
   display: block;
   text-align: center;
-  margin: 2.5rem auto 0; }
+  margin: 2.5rem auto 0;
+}
+
 .navbar {
-  display: none; }
+  display: none;
+}
+
+.navbar a:hover {
+  color: #d85002;
+}
 
 .pull-right {
-    float: right; }
+  float: right;
+}
 
 p {
-    margin-bottom:0px; }
+  margin-bottom:0px;
+}
 
 .comment-mech {
     margin-bottom: 1rem; }
@@ -50,13 +121,22 @@ h2 {
     text-align: center; margin-top: 1rem; }
 
 div.logo > img {
-    widht: 0px;
+    width: 0px;
     height: 0px;
     padding-left:250px;
     padding-top: 110px;
     background:url("camel-250.jpg");
 }
 
+a {
+  color: #d85002;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #F00;
+  text-decoration: underline;
+}
 
 /* Larger than phone */
 @media (min-width: 550px) {
