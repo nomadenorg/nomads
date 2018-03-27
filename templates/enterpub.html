@@ -1,84 +1,36 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>nomaden.ofosos.org - Neue Kneipe</title>
+{% extends "base.html" %}
+{% block title %}Kneipe eintragen{% endblock %}
 
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="assets/normalize.css">
-    <link rel="stylesheet" href="assets/skeleton.css">
-    <link rel="stylesheet" href="assets/nomaden.css">
+{% block content %}
+<div class="container">
 
-  </head>
-  <body>
+  <div class="row">
 
-    <div class="container">
-      
-      <div class="row">
-	
-	<h1>Neue Nomaden-Kneipe</h1>
+    <form action="/enterPub" method="post">
 
-      </div>
+      <label for="name">Name der Kneipe:</label>
+      <input type="text" name="name"><br>
 
-    </div>
-    
-    <nav class="navbar">
-      <div class="container">
-        <ul class="navbar-list">
-          <li class="navbar-item"><a class="navbar-link" href="/#aktuell">Die Termine</a></li>
-	  <li class="navbar-item">
-	    <a class="navbar-link" href="enterPub">Neue Kneipe</a>
-	  </li>
-	  <li class="navbar-item">
-	    <a class="navbar-link" href="archive">Archiv</a>
-	  </li>
-	  <li class="navbar-item pull-right">
-	    <a class="navbar-link" href="assets/about.html">Über uns</a>
-	  </li>
-        </ul>
-      </div>
-    </nav>
+      <label for="street">Straße:</label>
+      <input type="text" name="street"><br>
 
-    
-    <div class="container">
-      
-      <div class="row">
-	
-	<form action="/enterPub" method="post">
-	  
-	  <label for="name">Name der Kneipe:</label>
-	  <input type="text" name="name"><br>
+      <label for="city">Stadt/Ort:</label>
+      <input type="text" name="city" value="Hamburg"><br>
 
-	  <label for="street">Straße:</label>
-	  <input type="text" name="street"><br>
+      <label for="publictrans">ÖPNV:</label>
+      <input type="text" name="publictrans"><br>
 
-	  <label for="city">Stadt/Ort:</label>
-	  <input type="text" name="city" value="Hamburg"><br>
+      <label for="magic">Wieviele Beine hat ein Kamel?</label>
+      {% if current_user.is_active %}
+      <input type="text" name="magic" value="4">
+      {% else %}
+      <input type="text" name="magic">
+      {% endif %}
 
-	  <label for="publictrans">ÖPNV:</label>
-	  <input type="text" name="publictrans"><br>
+      <input class="button-primary" type="submit" value="Eintragen">
+    </form>
 
-	  <label for="magic">Wieviele Beine hat ein Kamel?</label>
-	  {% if current_user.is_active %}
-	  <input type="text" name="magic" value="4">
-	  {% else %}
-	  <input type="text" name="magic">
-	  {% endif %}
+  </div>
+</div>
 
-	  <input class="button-primary" type="submit" value="Eintragen">
-	</form>
-
-      </div>
-
-
-      <div class="row">
-	
-	<hr>
-	
-	Copyright &copy; 2016-2018 - Die Nomaden
-	
-      </div>
-
-    </div>
-  </body>
-</html>
+{% endblock %}

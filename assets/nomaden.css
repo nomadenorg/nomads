@@ -52,6 +52,11 @@
   cursor: pointer;
 }
 
+.ui-footer {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
 .container {
   max-width: 800px;
 }
