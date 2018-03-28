@@ -1,4 +1,6 @@
-#Nomaden Termin-Datenbank
+# Nomaden Termin-Datenbank
+
+Warning: lot's of outdated info here, we moved away from Google App Engine.
 
 The main purpose of the app is to schedule a computer science regulars
 table in Hamburg. This regulars table meets in a different (gastro-)
