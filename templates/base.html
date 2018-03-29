@@ -15,8 +15,10 @@
       <a target="_blank" rel="noopener"
          href="https://maps.google.com/maps?f=q&hl=en&q={{ app.street }},+Hamburg,+Germany">Google Maps</a><br/>
       <a target="_blank" rel="noopener"
-         href="https://www.geofox.de/jsf/home.seam?INPUTSTARTTYP=H&INPUTSTARTTEXT1=Informatikum&INPUTSTARTTEXT2=Hamburg&INPUTUHRZEIT=19:00&INPUTABODERAN=2&INPUTZIELTYP=A&INPUTZIELTEXT2={{ app.city }}&INPUTDATUM=23.08.2016&INPUTZIELTEXT1={{ app.publictrans }}">HVV</a><br/>
+         href="https://www.geofox.de/jsf/home.seam?INPUTSTARTTYP=H&INPUTSTARTTEXT1=Informatikum&INPUTSTARTTEXT2=Hamburg&INPUTUHRZEIT=19:00&INPUTABODERAN=2&INPUTZIELTYP=A&INPUTZIELTEXT2={{ app.city }}&INPUTZIELTEXT1={{ app.publictrans }}">HVV</a><br/>
+      {% if app.setdate is not none %}
       <a href="/calendarEntry?id={{ app.get_id() }}">iCal</a><br/>
+      {% endif %}
     </div>
 
     <div class="ui-app-address">
@@ -44,7 +46,7 @@
       {% if current_user.is_active %}
 
       {% if app.sortorder > 1 %}
-      <a href="/move?id={{ app.get_id() }}">Fr&uuml;er</a>
+      <a href="/move?id={{ app.get_id() }}">Fr&uuml;her</a>
       {% endif %}
       <a href="/move?id={{ app.get_id() }}&direction=backward">Sp&auml;ter</a>
 
