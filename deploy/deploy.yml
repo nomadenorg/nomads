@@ -2,14 +2,6 @@
 
 ---
 
-- hosts: webservers
-  gather_facts: False
-  tasks:
-  - name: install python 2
-    raw: test -e /usr/bin/python || (sudo apt -y update && sudo apt install -y python-minimal)
-  - name: install additional python
-    raw: sudo apt install -y python-pkg-resources
-
 # Install system apt packages
 - hosts: webservers
   become: yes
@@ -22,7 +14,6 @@
       - python-pip
       - python-dev
       - virtualenv
-      - nginx
       - git
 
   - name: create service user
@@ -74,7 +65,7 @@
       minute: 0
       hour: 12
       user: "{{ service_user }}"
-      job: "curl -k http://localhost/schedulePubs?token={{ crontoken.stdout }}"
+      job: "curl -k https://localhost/schedulePubs?token={{ crontoken.stdout }}"
   - name: create email cronjob
     cron:
       name: send emails
@@ -82,7 +73,7 @@
       minute: 0
       hour: 12
       user: "{{ service_user }}"
-      job: "curl -k http://localhost/publishMail?token={{ crontoken.stdout }}"
+      job: "curl -k https://localhost/publishMail?token={{ crontoken.stdout }}"
 
 # Configure app systemd service and nginx
 - hosts: webservers
@@ -95,20 +86,6 @@
       dest: /etc/systemd/system/{{ app_name }}.service
   - name: start systemd app service
     systemd: name={{ app_name }}.service state=restarted enabled=yes
-  - name: template nginx site config
-    template:
-      src: nginx.cfg
-      dest: /etc/nginx/sites-available/{{ app_name }}
-  - name: remove default nginx site config
-    file: path=/etc/nginx/sites-enabled/default state=absent
-  - name: enable nginx site
-    file:
-      src: /etc/nginx/sites-available/{{ app_name }}
-      dest: /etc/nginx/sites-enabled/default
-      state: link
-      force: yes
-  - name: restart nginx
-    systemd: name=nginx state=restarted enabled=yes
 
 # Run a quick test to verify the site is working
 - hosts: webservers

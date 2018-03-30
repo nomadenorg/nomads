@@ -1,0 +1,34 @@
+# Ansible playbook for preparing for let's encrypt
+# Big thanks to: https://medium.com/@gmaliar/generating-lets-encrypt-certificates-for-nginx-using-ansible-9fd27b90993a
+---
+
+- hosts: webservers
+  become: yes
+  tasks:
+  - name: Install nginx
+    apt: pkg=nginx state=installed
+
+  - name: remove default nginx default
+    file: path=/etc/nginx/sites-enabled/default state=absent
+# https://weakdh.org/
+  - name: Generate dhparams file
+    shell: openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+  - name: Install depends
+    apt: name={{ item }} state=latest
+    with_items:
+      - python
+      - python-dev
+      - gcc
+      - dialog
+      - libaugeas0
+      - augeas-lenses
+      - libssl-dev
+      - libffi-dev
+      - ca-certificates
+      - python-pip
+      - python-virtualenv
+      - git
+      - libpython-dev
+      - zlib1g-dev
+  - name: Lets Encrypt client
+    git: dest=/opt/certbot clone=yes repo=https://github.com/certbot/certbot force=yes

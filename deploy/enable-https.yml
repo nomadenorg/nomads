@@ -1,0 +1,41 @@
+# Ansible playbook for configuring let's encrypt
+# Big thanks to: https://medium.com/@gmaliar/generating-lets-encrypt-certificates-for-nginx-using-ansible-9fd27b90993a
+---
+
+- hosts: webservers
+  become: yes
+  tasks:
+  - name: Add crontab to renew certificates
+    cron:
+      minute: "30"
+      hour: "2"
+      weekday: "1"
+      job: "/opt/certbot/certbot-auto renew >> /var/log/le-renew.log"
+      user: root
+      cron_file: renew-certs
+
+  - name: Add crontab to reload server
+    cron: minute="35" hour="2" weekday="1" job="/etc/init.d/nginx reload" cron_file=reload-nginx user=root
+
+  - name: Add http nginx configuration
+    template: src=./nginx.cfg dest=/etc/nginx/sites-available/{{ service_name }}.http.conf owner=www-data group=www-data mode=0644
+
+  - name: Add http nginx symlink
+    file: src=/etc/nginx/sites-available/{{ service_name }}.http.conf dest=/etc/nginx/sites-enabled/{{ service_name }}.http owner=www-data group=www-data state=link
+
+  - name: reload nginx
+    service: name=nginx state=reloaded
+
+  - name: Create certificate
+    shell: ./certbot-auto certonly --webroot --email {{ service_admin_email }} --agree-tos --webroot-path=/usr/share/nginx/html -d {{ service_host }};
+    args:
+      chdir: /opt/certbot
+
+  - name: Add https nginx configuration
+    template: src=./nginx-tls.cfg dest=/etc/nginx/sites-available/{{ service_name }}.https.conf owner=www-data group=www-data mode=0644
+
+  - name: Add external https nginx symlink
+    file: src=/etc/nginx/sites-available/{{ service_name }}.https.conf dest=/etc/nginx/sites-enabled/{{ service_name }}.https owner=www-data group=www-data state=link
+
+  - name: reload nginx
+    service: name=nginx state=reloaded
