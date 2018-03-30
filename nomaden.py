@@ -163,7 +163,7 @@ class Appointment():
     # get archived appointments
     @classmethod
     def get_archive(cls):
-        return storage_helper.get_archived().apps
+        return [Appointment(x, idx+1) for idx, x in enumerate(storage_helper.get_archived().apps)]
 
     @classmethod
     def append_pub(cls):
