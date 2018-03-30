@@ -4,6 +4,7 @@
 ---
 
 - hosts: webservers
+  become: yes
   tasks:
   - name: import signing key
     apt_key:
@@ -18,7 +19,7 @@
   - name: configure tarsnap source
     shell: echo "deb-src http://pkg.tarsnap.com/deb-src ./" | sudo tee -a /etc/apt/sources.list.d/tarsnap.list
   - name: update cache
-    apt: name=python-software-properties state=present update_cache=yes cache_valid_time=43200
+    apt: update_cache=yes cache_valid_time=43200
   - name: import tarsnap cache
     shell: gpg --no-default-keyring --keyring trustedkeys.gpg --import /usr/share/keyrings/tarsnap-archive-keyring.gpg
   - name: get and build tarsnap
