@@ -1,0 +1,23 @@
+# Ansible playbook for configuring tarsnap backups
+
+---
+
+- hosts: webservers
+  become: yes
+  tasks:
+  - name: put tarsnap write key into system
+    template:
+      src: './nomaden-org-write.key'
+      dest: /root/tarsnap.key
+  - name: put backup script into system
+    template:
+      src: './tarsnap.sh'
+      dest: /root/tarsnap.sh
+  - name: create backup cronjob
+    cron:
+      name: backup our data files
+      minute: 0
+      hour: 4
+      user: root
+      job: "bash /root/tarsnap.sh"
+      cron_file: tarsnap-backup
