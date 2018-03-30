@@ -2,7 +2,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 
 from flask import Flask, render_template, request, redirect, url_for,\
-    make_response
+    make_response, g as flask_g
 
 from flask_login import LoginManager, current_user, login_required,\
     login_user, logout_user
@@ -52,37 +52,43 @@ class StorageHelper():
         pass
 
     def get_scheduled(self):
-        self.schedule = PBAppointmentList()
-        if os.path.isfile("schedule.pb"):
-            with open("schedule.pb", "rb") as f:
-                fcntl.lockf(f, fcntl.LOCK_SH)
-                self.schedule.ParseFromString(f.read())
-            f.close()
-        return self.schedule
+        scheduled = getattr(flask_g, 'scheduled_apps', None)
+        if not scheduled:
+            scheduled = PBAppointmentList()
+            if os.path.isfile("schedule.pb"):
+                with open("schedule.pb", "rb") as f:
+                    fcntl.lockf(f, fcntl.LOCK_SH)
+                    scheduled.ParseFromString(f.read())
+                f.close()
+        flask_g.scheduled_apps = scheduled
+        return scheduled
 
     def get_archived(self):
-        self.archive = PBAppointmentList()
-        if os.path.isfile("archive.pb"):
-            with open("archive.pb", "rb") as f:
-                fcntl.lockf(f, fcntl.LOCK_SH)
-                self.archive.ParseFromString(f.read())
-            f.close()
-        return self.archive
+        archived = getattr(flask_g, 'archived_apps', None)
+        if not archived:
+            archived = PBAppointmentList()
+            if os.path.isfile("archive.pb"):
+                with open("archive.pb", "rb") as f:
+                    fcntl.lockf(f, fcntl.LOCK_SH)
+                    archived.ParseFromString(f.read())
+                f.close()
+        flask_g.arhived_apps = archived
+        return archived
 
     def save(self):
-        if self.schedule:
+        scheduled = getattr(flask_g, 'scheduled_apps', None)
+        if scheduled:
             with open("schedule.pb", "wb") as f:
                 fcntl.lockf(f, fcntl.LOCK_EX)
-                f.write(self.schedule.SerializeToString())
+                f.write(scheduled.SerializeToString())
             f.close()
-            self.schedule = None
 
-        if self.archive:
+        archived = getattr(flask_g, 'archived_apps', None)
+        if archived:
             with open("archive.pb", "wb") as f:
                 fcntl.lockf(f, fcntl.LOCK_EX)
-                f.write(self.archive.SerializeToString())
+                f.write(archived.SerializeToString())
             f.close()
-            self.archive = None
 
 
 storage_helper = StorageHelper()
@@ -94,8 +100,8 @@ class Appointment():
     setdate = None
     removed = None
 
-    def __init__(self, pbapp, sortorder):
-        self.sortorder = sortorder
+    def __init__(self, pbapp, index):
+        self.sortorder = index + 1
         self.pbapp = pbapp
 
         self.id = self.pbapp.id
@@ -151,19 +157,19 @@ class Appointment():
     # get currently scheduled pubs
     @classmethod
     def get_current(cls):
-        return [Appointment(x, idx+1) for idx, x in enumerate(storage_helper.get_scheduled().apps)
+        return [Appointment(x, idx) for idx, x in enumerate(storage_helper.get_scheduled().apps)
                 if x.setdate != '']
 
     # get waiting list
     @classmethod
     def get_waiting(cls):
-        return [Appointment(x, idx+1) for idx, x in enumerate(storage_helper.get_scheduled().apps)
+        return [Appointment(x, idx) for idx, x in enumerate(storage_helper.get_scheduled().apps)
                 if x.setdate == '']
 
     # get archived appointments
     @classmethod
     def get_archive(cls):
-        return [Appointment(x, idx+1) for idx, x in enumerate(storage_helper.get_archived().apps)]
+        return [Appointment(x, idx) for idx, x in enumerate(storage_helper.get_archived().apps)]
 
     @classmethod
     def append_pub(cls):
@@ -175,6 +181,9 @@ class Appointment():
         sched.apps.extend([pbapp])
 
         return Appointment(sched.apps[-1], len(sched.apps))
+
+    def __eq__(self, other): 
+        return self.id == other.id
 
     # archive this appointment
     def archive(self):
@@ -196,14 +205,13 @@ class Appointment():
         app.logger.info("pub deleted key={}".format(self.id))
 
     def move_forward(self):
-        if self.setdate != '':
+        if self.setdate is not None:
+            app.logger.info('cannot move direction=forward id={}'.format(self.id))
             return
         sched = storage_helper.get_scheduled()
-        index = 0
         for idx, item in enumerate(sched.apps):
             if item.id == self.id:
                 index = idx
-                break
 
         if index > 0:
             tmp = PBAppointment()
@@ -214,16 +222,17 @@ class Appointment():
             app.logger.info('pub moved direction=forward id={}'.format(self.id))
 
             storage_helper.save()
+        else:
+            app.logger.info('already first move direction=forward id={}'.format(self.id))
 
     def move_backward(self):
-        if self.setdate != '':
+        if self.setdate is not None:
+            app.logger.info('cannot move direction=backward id={}'.format(self.id))
             return
         sched = storage_helper.get_scheduled()
-        index = 0
         for idx, item in enumerate(sched.apps):
             if item.id == self.id:
                 index = idx
-                break
 
         if index + 1 < len(sched.apps):
             app.logger.info("exchanging {} for {}".format(sched.apps[index], sched.apps[index+1]))
@@ -235,6 +244,8 @@ class Appointment():
             app.logger.info('pub moved direction=backward id={}'.format(self.id))
 
             storage_helper.save()
+        else:
+            app.logger.info('already last move direction=backward id={}'.format(self.id))
 
 
 # utility & templates
