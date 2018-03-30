@@ -247,6 +247,14 @@ class Appointment():
         else:
             app.logger.info('already last move direction=backward id={}'.format(self.id))
 
+    def is_first(self):
+        sched = storage_helper.get_scheduled()
+        return self.id == sched.apps[0].id
+
+    def is_last(self):
+        sched = storage_helper.get_scheduled()
+        return self.id == sched.apps[len(sched.apps) - 1].id
+
 
 # utility & templates
 
