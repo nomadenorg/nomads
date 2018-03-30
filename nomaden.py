@@ -196,6 +196,8 @@ class Appointment():
         app.logger.info("pub deleted key={}".format(self.id))
 
     def move_forward(self):
+        if self.setdate != '':
+            return
         sched = storage_helper.get_scheduled()
         index = 0
         for idx, item in enumerate(sched.apps):
@@ -214,6 +216,8 @@ class Appointment():
             storage_helper.save()
 
     def move_backward(self):
+        if self.setdate != '':
+            return
         sched = storage_helper.get_scheduled()
         index = 0
         for idx, item in enumerate(sched.apps):
