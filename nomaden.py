@@ -255,6 +255,9 @@ class Appointment():
         sched = storage_helper.get_scheduled()
         return self.id == sched.apps[len(sched.apps) - 1].id
 
+    def is_fix(self):
+        return self.setdate is not None
+
 
 # utility & templates
 

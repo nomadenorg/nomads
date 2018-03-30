@@ -1,7 +1,7 @@
 {% macro app_div(app) -%}
 <div class="row">
   <div class="twelve columns ui-app">
-    {% if app.setdate is not none %}
+    {% if app.is_fix() %}
     <div class="ui-app-date">
       {{ fmt_date(app.setdate) }}
     </div>
@@ -16,7 +16,7 @@
          href="https://maps.google.com/maps?f=q&hl=en&q={{ app.street }},+Hamburg,+Germany">Google Maps</a><br/>
       <a target="_blank" rel="noopener"
          href="https://www.geofox.de/jsf/home.seam?INPUTSTARTTYP=H&INPUTSTARTTEXT1=Informatikum&INPUTSTARTTEXT2=Hamburg&INPUTUHRZEIT=19:00&INPUTABODERAN=2&INPUTZIELTYP=A&INPUTZIELTEXT2={{ app.city }}&INPUTZIELTEXT1={{ app.publictrans }}">HVV</a><br/>
-      {% if app.setdate is not none %}
+      {% if app.is_fix() %}
       <a href="/calendarEntry?id={{ app.get_id() }}">iCal</a><br/>
       {% endif %}
     </div>
@@ -45,7 +45,7 @@
     <div class="ui-app-actions">
       {% if current_user.is_active %}
 
-      {% if app.setdate is none %}
+      {% if not app.is_fix() %}
       {% if not app.is_first() %}
       <div class="ui-app-moveup ui-app-action">
         <a href="/move?id={{ app.get_id() }}">Fr&uuml;her</a>
