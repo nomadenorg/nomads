@@ -248,12 +248,12 @@ class Appointment():
             app.logger.info('already last move direction=backward id={}'.format(self.id))
 
     def is_first(self):
-        sched = storage_helper.get_scheduled()
-        return self.id == sched.apps[0].id
+        apps = Appointment.get_waiting()
+        return self.id == apps[0].id
 
     def is_last(self):
-        sched = storage_helper.get_scheduled()
-        return self.id == sched.apps[len(sched.apps) - 1].id
+        apps = Appointment.get_waiting()
+        return self.id == apps[-1].id
 
     def is_fix(self):
         return self.setdate is not None
