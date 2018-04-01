@@ -604,7 +604,7 @@ def calendar_entry():
         c = Calendar()
         e = Event()
 
-        e.name = "Nomaden im {}, {} ({})".format(appo.name, appo.street, appo.publictrans)
+        e.name = u'Nomaden im {}, {} ({})'.format(appo.name, appo.street, appo.publictrans)
         e.begin = datetime.datetime.combine(appo.setdate, datetime.time(19))
 
         c.events.append(e)
@@ -624,7 +624,7 @@ def calendar():
         for appo in apps:
             e = Event()
 
-            e.name = "Nomaden im {}, {} ({})".format(appo.name, appo.street, appo.publictrans)
+            e.name = u"Nomaden im {}, {} ({})".format(appo.name, appo.street, appo.publictrans)
             e.begin = datetime.datetime.combine(appo.setdate, datetime.time(19))
 
             c.events.append(e)
