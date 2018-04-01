@@ -27,7 +27,7 @@
     service: name=nginx state=reloaded
 
   - name: Create certificate
-    shell: ./certbot-auto certonly --webroot --email {{ service_admin_email }} --agree-tos --webroot-path=/usr/share/nginx/html -d {{ service_host }};
+    shell: ./certbot-auto certonly -n --webroot --email {{ service_admin_email }} --agree-tos --webroot-path=/usr/share/nginx/html -d {{ service_host }};
     args:
       chdir: /opt/certbot
 
