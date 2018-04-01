@@ -611,6 +611,8 @@ def calendar_entry():
 
         res = make_response(str(c))
         res.headers['Content-Type'] = 'text/calendar; charset=utf-8'
+        res.headers['Content-Disposition'] = 'attachment; filename="nomaden.ics"'
+
         return res
 
 
@@ -631,6 +633,7 @@ def calendar():
 
         res = make_response(str(c))
         res.headers['Content-Type'] = 'text/calendar; charset=utf-8'
+        res.headers['Content-Disposition'] = 'attachment; filename="nomaden.ics"'
         return res
 
 
