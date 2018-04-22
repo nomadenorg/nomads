@@ -1,3 +1,15 @@
+// delete confirmation
+
+var confLink = document.querySelectorAll(".ui-app-delete > .ui-link");
+
+for (var i = 0; i < confLink.length; i++) {
+  var cm = confLink.item(i);
+
+  cm.addEventListener("click", function(e) {
+    if (!confirm("Willste das wirklich löschen?")) e.preventDefault();
+  })
+}
+
 
 // comment mechanics
 
