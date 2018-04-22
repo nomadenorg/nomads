@@ -594,6 +594,17 @@ def poster():
 
     return render_template('poster.html', **template_values)
 
+def get_event(appo):
+    e = Event()
+
+    e.name = u'Nomaden im {}'.format(appo.name, appo.street)
+    e.description = u'Nomaden in der Kneipe {}. Adresse: {} {}. HVV: {}'.format(appo.name, appo.street, appo.city,
+                                                                                appo.publictrans)
+    e.location = u'{}, {}'.format(appo.city, appo.street)
+    e.begin = datetime.datetime.combine(appo.setdate, datetime.time(19))
+    e.end = datetime.datetime.combine(appo.setdate, datetime.time(23))
+
+    return e;
 
 @app.route('/calendarEntry', methods=['GET'])
 def calendar_entry():
@@ -602,10 +613,7 @@ def calendar_entry():
 
     if appo:
         c = Calendar()
-        e = Event()
-
-        e.name = u'Nomaden im {}, {} ({})'.format(appo.name, appo.street, appo.publictrans)
-        e.begin = datetime.datetime.combine(appo.setdate, datetime.time(19))
+        e = get_event(appo)
 
         c.events.append(e)
 
@@ -624,11 +632,7 @@ def calendar():
         c = Calendar()
 
         for appo in apps:
-            e = Event()
-
-            e.name = u"Nomaden im {}, {} ({})".format(appo.name, appo.street, appo.publictrans)
-            e.begin = datetime.datetime.combine(appo.setdate, datetime.time(19))
-
+            e = get_event(appo)
             c.events.append(e)
 
         res = make_response(str(c))
