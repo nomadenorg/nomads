@@ -65,7 +65,7 @@
       minute: 0
       hour: 12
       user: "{{ service_user }}"
-      job: "curl -k https://localhost/schedulePubs?token={{ crontoken.stdout }}"
+      job: "curl -k https://nomaden.ofosos.org/schedulePubs?token={{ crontoken.stdout }}"
   - name: create email cronjob
     cron:
       name: send emails
@@ -73,7 +73,7 @@
       minute: 0
       hour: 12
       user: "{{ service_user }}"
-      job: "curl -k https://localhost/publishMail?token={{ crontoken.stdout }}"
+      job: "curl -k https://nomaden.ofosos.org/publishMail?token={{ crontoken.stdout }}"
 
 # Configure app systemd service and nginx
 - hosts: webservers
