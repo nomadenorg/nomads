@@ -72,7 +72,7 @@ class StorageHelper():
                     fcntl.lockf(f, fcntl.LOCK_SH)
                     archived.ParseFromString(f.read())
                 f.close()
-        flask_g.arhived_apps = archived
+        flask_g.archived_apps = archived
         return archived
 
     def save(self):
