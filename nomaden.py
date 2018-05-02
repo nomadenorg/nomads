@@ -33,21 +33,21 @@ config = ConfigParser.ConfigParser()
 config.read('nomaden.cfg')
 
 
-# gunicorn logging
-
-if __name__ != ‘__main__’:
-    gunicorn_logger = logging.getLogger(‘gunicorn.error’)
-    app.logger.handlers = gunicorn_logger.handlers
-    app.logger.setLevel(gunicorn_logger.level)
-
-
-
 # flask app & login manager
 
 app = Flask(__name__, static_folder='assets', static_url_path='/assets')
 login_manager = LoginManager()
 login_manager.init_app(app)
 app.secret_key = config.get("app", "secret", 0)
+
+
+# gunicorn logging
+
+if __name__ != ‘__main__’:
+    gunicorn_logger = logging.getLogger('gunicorn.error')
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
+
 
 # model layer
 
