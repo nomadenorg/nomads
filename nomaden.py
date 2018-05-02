@@ -169,7 +169,7 @@ class Appointment():
     # get archived appointments
     @classmethod
     def get_archive(cls):
-        return sorted([Appointment(x, idx) for idx, x in enumerate(storage_helper.get_archived().apps)], key=lambda appo: appo.setdate)
+        return sorted([Appointment(x, idx) for idx, x in enumerate(storage_helper.get_archived().apps)], key=lambda appo: appo.setdate, reverse=True)
 
     @classmethod
     def append_pub(cls):
