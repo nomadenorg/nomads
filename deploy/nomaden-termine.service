@@ -7,7 +7,7 @@ User={{ service_user }}
 Group=www-data
 WorkingDirectory=/home/{{ service_user }}/{{ app_name }}
 Environment="PATH=/home/{{ service_user }}/{{ app_name }}/env/bin"
-ExecStart=/home/{{ service_user }}/{{ app_name }}/env/bin/gunicorn --workers 3 --bind unix:{{ app_name }}.sock -m 007 wsgi:app
+ExecStart=/home/{{ service_user }}/{{ app_name }}/env/bin/gunicorn --workers 3 --bind unix:{{ app_name }}.sock -m 007 --log-level=debug wsgi:app
 
 [Install]
 WantedBy=multi-user.target
