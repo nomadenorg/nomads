@@ -7,5 +7,5 @@ app_name=nomaden-termine
 service_user=nomaden
 service_admin_email=mark@ofosos.org
 service_name=nomaden_termine
-service_host=nomaden.ofosos.org
+service_host=www.nomaden.org
 letsencrypt_ssl_dir=/etc/letsencrypt/live
