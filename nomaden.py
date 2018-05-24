@@ -14,6 +14,7 @@ from smtplib import SMTP
 from email.mime.text import MIMEText
 
 import datetime
+import pytz
 import dateutil.parser
 import re
 import os.path
@@ -606,14 +607,15 @@ def poster():
 def get_event(appo):
     e = Event()
 
+    tz = pytz.timezone('Europe/Berlin')
     e.name = u'Nomaden im {}'.format(appo.name, appo.street)
     e.description = u'Nomaden in der Kneipe {}. Adresse: {} {}. HVV: {}'.format(appo.name, appo.street, appo.city,
                                                                                 appo.publictrans)
     e.location = u'{}, {}'.format(appo.city, appo.street)
-    e.begin = datetime.datetime.combine(appo.setdate, datetime.time(19))
-    e.end = datetime.datetime.combine(appo.setdate, datetime.time(23))
+    e.begin = datetime.datetime.combine(appo.setdate, datetime.time(19, tzinfo=tz))
+    e.end = datetime.datetime.combine(appo.setdate, datetime.time(23, tzinfo=tz))
 
-    return e;
+    return e
 
 @app.route('/calendarEntry', methods=['GET'])
 def calendar_entry():
