@@ -612,8 +612,10 @@ def get_event(appo):
     e.description = u'Nomaden in der Kneipe {}. Adresse: {} {}. HVV: {}'.format(appo.name, appo.street, appo.city,
                                                                                 appo.publictrans)
     e.location = u'{}, {}'.format(appo.city, appo.street)
-    e.begin = datetime.datetime.combine(appo.setdate, datetime.time(19, tzinfo=tz))
-    e.end = datetime.datetime.combine(appo.setdate, datetime.time(23, tzinfo=tz))
+    begin = datetime.datetime.combine(appo.setdate, datetime.time(19))
+    e.begin = tz.localize(begin)
+    end = datetime.datetime.combine(appo.setdate, datetime.time(23))
+    e.end = tz.localize(end)
 
     return e
 
