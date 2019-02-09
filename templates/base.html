@@ -15,7 +15,7 @@
       <a target="_blank" rel="noopener"
          href="https://maps.google.com/maps?f=q&hl=en&q={{ app.street }},+Hamburg,+Germany">Google Maps</a><br/>
       <a target="_blank" rel="noopener"
-         href="https://geofox.hvv.de/jsf/home.seam?execute=true&date=09.02.2019&time=05:40&language=de&start=Informatikum&startCity=Hamburg&startType=STATION&destination={{ app.street }}&destinationCity={{ app.city }}&destinationType=ADDRESS&timeIsDeparture=1&wayBy=train">HVV</a><br/>
+         href="https://geofox.hvv.de/jsf/home.seam?execute=true&language=de&start=Informatikum&startCity=Hamburg&startType=STATION&destination={{ app.street }}&destinationCity={{ app.city }}&destinationType=ADDRESS&timeIsDeparture=1&wayBy=train">HVV</a><br/>
       {% if app.is_fix() %}
       <a href="/calendarEntry?id={{ app.get_id() }}">iCal</a><br/>
       {% endif %}
