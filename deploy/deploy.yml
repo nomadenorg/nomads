@@ -61,7 +61,6 @@
   - name: create scheduler cronjob
     cron:
       name: schedule pubs
-      weekday: 3
       minute: 0
       hour: 12
       user: "{{ service_user }}"
@@ -69,7 +68,6 @@
   - name: create email cronjob
     cron:
       name: send emails
-      weekday: 1
       minute: 0
       hour: 12
       user: "{{ service_user }}"
